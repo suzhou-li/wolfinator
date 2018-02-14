@@ -15,35 +15,6 @@
 /*****************************************************************************/
 
 /***************************************************************************//**
- * @brief Goes through the power-up sequencing of the device. Before device
- *        power up, all digital and analog inputs must be low. At the time of 
- *        power up, keep all these signals low until the power supplies have
- *        stabilized. Allow time for the supply voltages to reach their final
- *        to reach their final value, and then begin supplying the master 
- *        clock signal to the CLK pin. Wait for time t_POR (wait after power 
- *        up until reset, 2^18 clock cycles), then transmit a reset pulse. 
- *        Issue the reset after t_POR or after VCAP1 voltage is greater than 
- *        1.1 V depends on RC time constant). 
- * 
- * @param None.
- * 
- * @return 1 - power-up success, 0 - power-up failed
-*******************************************************************************/
-unsigned char ADS1298_PowerUp() {
-	unsigned int i = 0;
-	unsigned char writeOpCode = 0x00;
-	
-	/* Wait appropriate amount of time for the device to power up */
-	for (i = 0; i < 500000; i++) {} 
-	
-	/* Reset the device by issuing the RESET opcode */
-	writeOpCode = ADS1298_RESET;
-	SPI_Write(writeOpCode, 1);
-	
-	return 1;
-}
-
-/***************************************************************************//**
  * @brief Initialize the ADS1298 registers. 
  * 
  * @param None.
@@ -51,11 +22,20 @@ unsigned char ADS1298_PowerUp() {
  * @return 1 - initialization success, 0 - initialization failed
 *******************************************************************************/
 unsigned char ADS1298_Initialize() {
+	unsigned char status = 0;
 	unsigned char* writeVals[25] = {0, 0, 0, 0, 0, \
 									0, 0, 0, 0, 0, \
 									0, 0, 0, 0, 0, \
 									0, 0, 0, 0, 0, \
 									0, 0, 0, 0, 0};
+	
+	/* Initialize the device */
+	status = SPI_Init(1);
+	if (!status) { return 0; } // if initialization was unsuccessful, return 0
+	
+	/* Power up the device */
+	status = ADS1298_PowerUp(); // if initialization was successful, power up the device
+	if (!status) { return 0; } // if the power up was unsuccessful, return 0
 	
 	/* Define the register values to write*/
 	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR || ADS1298_CONFIG1_CLK || ADS1298_CONFIG1_DR_2K;
@@ -86,6 +66,38 @@ unsigned char ADS1298_Initialize() {
 	
 	/* Send the register values */
 	ADS1298_WriteRegisters(ADS1298_CONFIG1, 12, writeVals);
+	
+	return 1;
+}
+
+/***************************************************************************//**
+ * @brief Goes through the power-up sequencing of the device. Before device
+ *        power up, all digital and analog inputs must be low. At the time of 
+ *        power up, keep all these signals low until the power supplies have
+ *        stabilized. Allow time for the supply voltages to reach their final
+ *        to reach their final value, and then begin supplying the master 
+ *        clock signal to the CLK pin. Wait for time t_POR (wait after power 
+ *        up until reset, 2^18 clock cycles), then transmit a reset pulse. 
+ *        Issue the reset after t_POR or after VCAP1 voltage is greater than 
+ *        1.1 V depends on RC time constant). 
+ * 
+ * @param None.
+ * 
+ * @return 1 - power-up success, 0 - power-up failed
+*******************************************************************************/
+unsigned char ADS1298_PowerUp() {
+	unsigned int i = 0;
+	unsigned char writeOpCode = 0x00;
+	
+	/* Bring the power pin HIGH to turn on the device */
+	ADS1298_PWR_PIN = 1;
+	
+	/* Wait appropriate amount of time for the device to power up */
+	for (i = 0; i < 500000; i++) {} 
+	
+	/* Reset the device by issuing the RESET opcode */
+	writeOpCode = ADS1298_RESET;
+	SPI_Write(writeOpCode, 1);
 	
 	return 1;
 }
