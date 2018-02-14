@@ -55,19 +55,15 @@
 /* Define the SPI bits in the SSP1 Status Register */
 #define SPI_ADS1298_CLKEDGE			SSP1STATbits.CKE // SPI Clock Edge Select bit
 #define SPI_ADS1298_SAMPLING		SSP1STATbits.SMP // SPI Data Input Sample bit
-#define SPI_ADS1298_DATA_CHECK		SSP1STATbits.BF 
+#define SPI_ADS1298_BUFFERFULL		SSP1STATbits.BF // SPI Buffer Full Status bit
 
 /* Define the SPI bits in SSP1 Control Register 1 */
 #define SPI_ADS1298_ENABLE  		SSP1CON1bits.SSPEN
 #define SPI_ADS1298_CLKPOL			SSP1CON1bits.CKP
-#define SPI_ADS1298_FOSC 			SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI 
-#define SPI_ADS1298_FOSCbit3 		SSP1CON1bits.SSPM3
-#define SPI_ADS1298_FOSCbit2		SSP1CON1bits.SSPM2
-#define SPI_ADS1298_FOSCbit1		SSP1CON1bits.SSPM1
-#define SPI_ADS1298_FOSCbit0 		SSP1CON1bits.SSPM0 
+#define SPI_ADS1298_FOSC 			SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
 
 /* Define the SPI bits for the ADS1298 data buffer */
-#define SPI_ADS1298_DATA_BUFFER		SSP1BUF
+#define SPI_ADS1298_DATABUFFER		SSP1BUF
 
 /* Define the pins of the SPI for the ADS1298 in the PIC */
 #define SPI_ADS1298_SCLK_DIR		TRISCbits.RC3       // SCLK on RC3 direction
@@ -77,12 +73,15 @@
 
 #define SPI_ADS1298_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
 
+#define SPI_ADS1298_CS_DIR			TRISAbits.RA0       // ADS CS from RA0 direction
+#define SPI_ADS1298_CS_PIN			LATAbits.LATA0      // PIC CS pin (output) 
+
 #define SPI_ADS1298_DRDY_DIR		TRISAbits.RA3       // DRDY pin direction
 #define SPI_ADS1298_DRDY_ANSEL		ANSELAbits.ANSA3    // DRDY pin analog select bit
 #define SPI_ADS1298_DRDY_NOT		PORTAbits.RA3       // DRDY pin (input)
 
-#define SPI_ADS1298_CS_DIR			TRISAbits.RA0       // ADS CS to RA0 direction
-#define SPI_ADS1298_CS_PIN			LATAbits.LATA0      // PIC CS pin (output) 
+#define SPI_ADS1298_START_DIR		TRISAbits.RA5		// ADS START from RA5 direction
+#define SPI_ADS1298_START_PIN		LATAbits.LATA5		// PIC START pin (output)
 
 /* Define the other pins for the ADS1298 */
 #define ADS1298_RESET_DIR		TRISAbits.RA2       // RESET pin direction
@@ -96,14 +95,14 @@
 /******************************************************************************/
 
 /* Initializes the SPI communication peripheral. */
-unsigned char SPI_Init(unsigned char lsbFirst);
+unsigned char SPI_ADS1298_Init(unsigned char lsbFirst);
 
 /* Writes data to SPI. */
-unsigned char SPI_Write(unsigned char* data,
-                        unsigned char bytesNumber);
+unsigned char SPI_ADS1298_Write(unsigned char* data,
+								unsigned char bytesNumber);
 
 /* Reads data from SPI. */
-unsigned char SPI_Read(unsigned char* data,
-                       unsigned char bytesNumber);
+unsigned char SPI_ADS1298_Read(unsigned char* data,
+							   unsigned char bytesNumber);
 
 #endif	// _COMMUNICATION_H_

@@ -55,7 +55,7 @@
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_Init(unsigned char lsbFirst) {
+unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP1CON1 = 0x00; // SSP control register 1
@@ -78,23 +78,27 @@ unsigned char SPI_Init(unsigned char lsbFirst) {
 	
 	SPI_ADS1298_ENABLE = 1; // enable the SPI
 
-	/* Properly configure the pins */
+	/* Properly configure the SPI/communication pins */
 	
-	SPI_ADS1298_SCLK_DIR = 0;		// SCLK on ADS1298 is output
+	SPI_ADS1298_SCLK_DIR = 0; // SCLK on ADS1298 is output
 
-	SPI_ADS1298_DOUT_DIR   = 1;		// DOUT on ADS1298 is input into the PIC    
-	SPI_ADS1298_DOUT_ANSEL = 0;		// clear analog select bit for PIC input
+	SPI_ADS1298_DOUT_DIR   = 1; // DOUT on ADS1298 is input into the PIC    
+	SPI_ADS1298_DOUT_ANSEL = 0; // clear analog select bit for PIC input
 
-	SPI_ADS1298_DIN_DIR = 0;		// DIN on ADS1298 is output from PIC
-
-	SPI_ADS1298_DRDY_DIR   = 1;		// DRDY on ADS1298 is input into PIC
-	SPI_ADS1298_DRDY_ANSEL = 0;		// clear analog select bit for DRDY
+	SPI_ADS1298_DIN_DIR = 0; // DIN on ADS1298 is output from PIC
 	
-	SPI_ADS1298_CS_DIR = 0;			// CS on ADS1298 is output from PIC
+	SPI_ADS1298_CS_DIR = 0; // CS on ADS1298 is output from PIC
+	
+	SPI_ADS1298_DRDY_DIR   = 1; // DRDY on ADS1298 is input into PIC
+	SPI_ADS1298_DRDY_ANSEL = 0;	// clear analog select bit for DRDY
+	
+	SPI_ADS1298_START_DIR = 0;
+	
+	/* Properly configure the other pins */
+	
+	ADS1298_RESET_DIR = 0; // RESET is output
 
-	ADS1298_RESET_DIR = 0;			// RESET is output
-
-	ADS1298_PWR_DIR = 0;			// PWRDN on ADS1298 is output from PIC
+	ADS1298_PWR_DIR = 0; // PWRDN on ADS1298 is output from PIC
 
 	return 1;
 }
@@ -107,21 +111,21 @@ unsigned char SPI_Init(unsigned char lsbFirst) {
  *
  * @return Number of written bytes.
 *******************************************************************************/
-unsigned char SPI_Write(unsigned char* data,
+unsigned char SPI_ADS1298_Write(unsigned char* data,
 						unsigned char bytesNumber)
 {
     unsigned char i;
     
     /* To begin the frame, bring CS to LOW */
-    SLAVE_SELECT = 0;
+    SI_ADS1298_CS_PIN = 0;
     
     for(i = 0; i < bytesNumber; i++){
-        SPI_DATA_BUFFER = *data++;
-        while(!SPI_DATA_CHECK);
+        SPI_ADS1298_DATABUFFER = *data++;
+        while(!SPI_ADS1298_BUFFERFULL);
     }
     
     /* To end the frame, bring CS back HIGH */
-    SLAVE_SELECT = 1;
+    SPI_ADS1298_CS_PIN = 1;
 
 	return bytesNumber;
 }
@@ -140,17 +144,16 @@ unsigned char SPI_Read(unsigned char* data,
     unsigned char i;
     
     /* To begin the frame, bring CS to LOW */
-    SLAVE_SELECT = 0;
+    SPI_ADS1298_CS_PIN = 0;
     
     for(i = 0; i < bytesNumber; i++){ 
-        SPI_DATA_BUFFER = 0x00; // Write the buffer to shift bits in
-        while(!SPI_DATA_CHECK); // When transmission has yet to be completed, stalls
-        //while(!SPI_INTERRUPT);  // Wait for the interrupt flag to indicate the buffer is full
-        *data++ = SPI_DATA_BUFFER; 
+        SPI_ADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
+        while(!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
+        *data++ = SPI_ADS1298_DATABUFFER; 
     }
     
     /* To end the frame, bring CS to HIGH*/
-    SLAVE_SELECT = 1;
+    SPI_ADS1298_CS_PIN = 1;
     
     return bytesNumber;
 }
