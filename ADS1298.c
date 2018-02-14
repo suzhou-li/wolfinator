@@ -149,7 +149,8 @@ void ADS1298_ReadRegisters(unsigned char address,
 }
 
 /***************************************************************************//**
- * @brief	Streams electrogram data from the ADS1298.
+ * @brief	Streams electrogram data from the ADS1298. You could use the START
+ *          pin, but using the START opcode means less wires are needed.
  * 
  * @param	pDataBuffer - Pointer to the array storing the streamed data.
  * @param	frameCnt - Long denoting the number of frames to collect.

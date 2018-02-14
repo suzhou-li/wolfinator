@@ -356,18 +356,23 @@
 /* FUNCTIONS PROTOTYPES														  */
 /******************************************************************************/
 
-unsigned char ADS1298_PowerUp() {};
-
+/* Initializes the ADS1298 */
 unsigned char ADS1298_Initialize() {};
 
+/* Powers up the ADS1298 chip */
+unsigned char ADS1298_PowerUp() {};
+
+/* Writes values to the registers of the ADS1298 */
 void ADS1298_WriteRegisters(unsigned char address, 
 							unsigned char writeNum, 
 							unsigned char* regVals) {};
-							
+
+/* Reads values from the registers of the ADS1298 */
 void ADS1298_ReadRegisters(unsigned char address, 
 						   unsigned char writeNum, 
 						   unsigned char* regVals) {};
 
+/* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt,
 					  unsigned long frameSize) {};
