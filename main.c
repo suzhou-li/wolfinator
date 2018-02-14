@@ -9,16 +9,19 @@
 #include "Communication.h"
 
 void main() {
+	unsigned char status;
 	unsigned char* dummy;
 	
 	/* Set the PIC clock frequency */
     OSCCON = 0b01110110; // set clock to 16 MHz //moved from below RNinit() to here)
 	
 	/* Initialize the ADS1298 */
-	ADS1298_Initialize();
+	status = ADS1298_Initialize();
 	
 	/* Keep reading these registers */
-	while (1) {
-		ADS1298_ReadRegisters(ADS1298_ID, 4, dummy);
+	if (status) {
+		while (1) {
+			ADS1298_ReadRegisters(ADS1298_ID, 4, dummy);
+		}
 	}
 }
