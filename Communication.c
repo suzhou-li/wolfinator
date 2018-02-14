@@ -52,49 +52,34 @@
  * @param lsbFirst - Transfer format (0 or 1).
  *                   Example: 0x0 - MSB first.
  *                            0x1 - LSB first.
- * @param clockFreq - SPI clock frequency (Hz).
- *                    Example: 1000 - SPI clock frequency is 1 kHz.
- * @param clockPol - SPI clock polarity (0 or 1).
- *                   Example: 0x0 - idle state for SPI clock is low.
- *	                          0x1 - idle state for SPI clock is high.
- * @param clockPha - SPI clock phase/edge (0 or 1).
- *                   Example: 0x0 - data is latched on the leading edge of SPI
- *                                  clock and data changes on trailing edge.
- *                            0x1 - data is latched on the trailing edge of SPI
- *                                  clock and data changes on the leading edge.
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_Init(unsigned char lsbFirst,
-                       unsigned long clockFreq,
-                       unsigned char clockPol,
-                       unsigned char clockPha)
-{
+unsigned char SPI_Init(unsigned char lsbFirst) {
+	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP1CON1 = 0x00; // SSP control register 1
 	SSP1STAT = 0x00; // SSP status register
 
 	/* SSP1 Status Register bits */
 
-	//SPI_SAMPLING = 0; // Master mode sampling occurs at the middle of data output time
-	SPI_SAMPLING = 1; // Master mode sampling occurs at the end of data output time (What we originally thought it was)
+	SPI_ADS1298_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
+	//SPI_ADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
 
-	SPI_CLOCK_EDGE = 0; // Transmit occurs on transition from active to Idle clock state (what we originally thought it was))
-	//SPI_CLOCK_EDGE = 1; // Transmit occurs on transition from idle to active clock state 
+	//SPI_ADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
+	SPI_ADS1298_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
 
 	/* SSP1 Control Register 1 bits */
 
-	// SPI_CLOCK_POLARITY = 0; // Idle state for clock is high
-	SPI_CLOCK_POLARITY = 1; // Idle state for clock is high
-
-	//SPI_FOSCbit3 = 0;
-	//SPI_FOSCbit2 = 0;
-	//SPI_FOSCbit1 = 0;
-	//SPI_FOSCbit0 = 0;
-	SPI_FOSC = 0000;    // set frequency of the shift clock
-	SPI_ENABLE = 1;     // enable the SPI
+	SPI_ADS1298_CLKPOL = 0; // idle state for clock is low
+	//SPI_ADS1298_CLKPOL = 1; // idle state for clock is high
+	
+	SPI_ADS1298_FOSC = 0000; // set frequency of the shift clock
+	
+	SPI_ADS1298_ENABLE = 1; // enable the SPI
 
 	/* Properly configure the pins */
+	
 	SPI_ADS1298_SCLK_DIR = 0;		// SCLK on ADS1298 is output
 
 	SPI_ADS1298_DOUT_DIR   = 1;		// DOUT on ADS1298 is input into the PIC    
@@ -104,24 +89,12 @@ unsigned char SPI_Init(unsigned char lsbFirst,
 
 	SPI_ADS1298_DRDY_DIR   = 1;		// DRDY on ADS1298 is input into PIC
 	SPI_ADS1298_DRDY_ANSEL = 0;		// clear analog select bit for DRDY
-
-	SPI_ADS1298_RESET_DIR = 0;		// RESET is output
-
+	
 	SPI_ADS1298_CS_DIR = 0;			// CS on ADS1298 is output from PIC
 
-	SPI_ADS1298_POWER_DIR = 0;		// PWRDN on ADS1298 is output from PIC
+	ADS1298_RESET_DIR = 0;			// RESET is output
 
-	/* Set the CS (chip select) to HIGH as default state */
-	/* CS is used to frame the data and must be included in the code.
-	 * When CS falls LOW, it begins the frame. When CS is brought HIGH,
-	 * the frame ends.
-	 */
-	SPI_ADS1298_CS_PIN = 1;			// Chip Select goes HIGH
-	SPI_ADS1298_RESET_PIN = 1;		// RESET is at HIGH
-
-	/* Configure the interrupt bits for the SSP interrupt flag */
-	//PIE1bits.SSP1IE = 1;
-	//IPR1bits.SSP1IP = 1;
+	ADS1298_PWR_DIR = 0;			// PWRDN on ADS1298 is output from PIC
 
 	return 1;
 }
