@@ -1,0 +1,24 @@
+#pragma config WDTEN = OFF
+#pragma config FOSC  = INTIO67
+#pragma config XINST = OFF
+
+#include <pic18f46k22.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "ADS1298.h"
+#include "Communication.h"
+
+void main() {
+	unsigned char* dummy;
+	
+	/* Set the PIC clock frequency */
+    OSCCON = 0b01110110; // set clock to 16 MHz //moved from below RNinit() to here)
+	
+	/* Initialize the ADS1298 */
+	ADS1298_Initialize();
+	
+	/* Keep reading these registers */
+	while (1) {
+		ADS1298_ReadRegisters(ADS1298_ID, 4, dummy);
+	}
+}
