@@ -2,7 +2,7 @@
 #pragma config FOSC  = INTIO67
 #pragma config XINST = OFF
 
-#include <pic18f46k22.h>
+#include <p18f46k22.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "ADS1298.h"
@@ -21,7 +21,7 @@ void main() {
 	/* Keep reading these registers */
 	if (status) {
 		while (1) {
-			ADS1298_ReadRegisters(ADS1298_ID, 4, dummy);
+			ADS1298_ReadRegisters((unsigned char) ADS1298_ID, 4, dummy);
 		}
 	}
 }

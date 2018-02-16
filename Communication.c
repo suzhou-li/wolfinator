@@ -44,7 +44,6 @@
 /* Include Files                                                              */
 /******************************************************************************/
 #include "Communication.h"
-#include <p18f46k22.h>
 
 /***************************************************************************//**
  * @brief Initializes the SPI communication peripheral.
@@ -112,12 +111,12 @@ unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
  * @return Number of written bytes.
 *******************************************************************************/
 unsigned char SPI_ADS1298_Write(unsigned char* data,
-						unsigned char bytesNumber)
+                                unsigned char bytesNumber)
 {
     unsigned char i;
     
     /* To begin the frame, bring CS to LOW */
-    SI_ADS1298_CS_PIN = 0;
+    SPI_ADS1298_CS_PIN = 0;
     
     for(i = 0; i < bytesNumber; i++){
         SPI_ADS1298_DATABUFFER = *data++;
@@ -138,8 +137,8 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
  *
  * @return Number of read bytes.
 *******************************************************************************/
-unsigned char SPI_Read(unsigned char* data,
-					   unsigned char bytesNumber)
+unsigned char SPI_ADS1298_Read(unsigned char* data,
+                               unsigned char bytesNumber)
 {
     unsigned char i;
     

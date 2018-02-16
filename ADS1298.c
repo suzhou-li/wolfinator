@@ -15,62 +15,6 @@
 /*****************************************************************************/
 
 /***************************************************************************//**
- * @brief Initialize the ADS1298 registers. 
- * 
- * @param None.
- * 
- * @return 1 - initialization success, 0 - initialization failed
-*******************************************************************************/
-unsigned char ADS1298_Initialize() {
-	unsigned char status = 0;
-	unsigned char* writeVals[25] = {0, 0, 0, 0, 0, \
-									0, 0, 0, 0, 0, \
-									0, 0, 0, 0, 0, \
-									0, 0, 0, 0, 0, \
-									0, 0, 0, 0, 0};
-	
-	/* Initialize the device */
-	status = SPI_Init(1);
-	if (!status) { return 0; } // if initialization was unsuccessful, return 0
-	
-	/* Power up the device */
-	status = ADS1298_PowerUp(); // if initialization was successful, power up the device
-	if (!status) { return 0; } // if the power up was unsuccessful, return 0
-	
-	/* Define the register values to write*/
-	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR || ADS1298_CONFIG1_CLK || ADS1298_CONFIG1_DR_2K;
-	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST;
-	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN || (0b1 << 6);
-	/* LOFF       */ writeVals[3]  = 0x00;
-	/* CH1SET     */ writeVals[4]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH2SET     */ writeVals[5]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH3SET     */ writeVals[6]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH4SET     */ writeVals[7]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH5SET     */ writeVals[8]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH6SET     */ writeVals[9]  = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH7SET     */ writeVals[10] = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* CH8SET     */ writeVals[11] = ADS1298_GAIN_12 || ADS1298_MUX_ELEC;
-	/* RLD_SENSP  */ writeVals[12] = 0x00;
-	/* RLD_SENSN  */ writeVals[13] = 0x00;
-	/* LOFF_SENSP */ writeVals[14] = 0x00;
-	/* LOFF_SENSN */ writeVals[15] = 0x00;
-	/* LOFF_FLIP  */ writeVals[16] = 0x00;
-	/* LOFF_STATP */ writeVals[17] = 0x00;
-	/* LOFF_STATN */ writeVals[18] = 0x00;
-	/* GPIO       */ writeVals[19] = 0x00;
-	/* PACE       */ writeVals[20] = 0x00;
-	/* RESP       */ writeVals[21] = 0x00;
-	/* CONFIG4    */ writeVals[22] = 0x00;
-	/* WCT1       */ writeVals[23] = 0x00;
-	/* WCT2       */ writeVals[24] = 0x00;
-	
-	/* Send the register values */
-	ADS1298_WriteRegisters(ADS1298_CONFIG1, 12, writeVals);
-	
-	return 1;
-}
-
-/***************************************************************************//**
  * @brief Goes through the power-up sequencing of the device. Before device
  *        power up, all digital and analog inputs must be low. At the time of 
  *        power up, keep all these signals low until the power supplies have
@@ -97,7 +41,7 @@ unsigned char ADS1298_PowerUp() {
 	
 	/* Reset the device by issuing the RESET opcode */
 	writeOpCode = ADS1298_RESET;
-	SPI_Write(writeOpCode, 1);
+	SPI_ADS1298_Write(&writeOpCode, 1);
 	
 	return 1;
 }
@@ -121,8 +65,8 @@ void ADS1298_WriteRegisters(unsigned char address,
 	writeOpCode[1] = writeNum - 1;
 	
 	/* Write the opcode and register values */
-	SPI_Write(writeOpCode, 2);
-	SPI_Write(regVals, writeNum);
+	SPI_ADS1298_Write(writeOpCode, 2);
+	SPI_ADS1298_Write(regVals, writeNum);
 }
 
 /***************************************************************************//**
@@ -140,12 +84,12 @@ void ADS1298_ReadRegisters(unsigned char address,
 	unsigned char readOpCode[2] = {0, 0};
 	
 	/* Define the opcode */
-	readOpCode[0] = ADS1298_RREG + address;
+	readOpCode[0] = (unsigned char) ADS1298_RREG + address;
 	readOpCode[1] = readNum - 1;
 	
 	/* Write the opcode and read the register values */
-	SPI_Write(readOpCode, 2);
-	SPI_Read(regVals, readNum);
+	SPI_ADS1298_Write(readOpCode, 2);
+	SPI_ADS1298_Read(regVals, readNum);
 }
 
 /***************************************************************************//**
@@ -162,13 +106,16 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt, 
 					  unsigned long frameSize) {
 	unsigned char i;
-	
+	unsigned char writeOpCode = 0x00;
+    
 	/* Issue the start opcode */
 	if (frameCnt > 1) { // if you want to collect more than 1 frame
-		SPI_Write(ADS1298_RDATAC, 1);
+        writeOpCode = ADS1298_RDATAC;
+		SPI_ADS1298_Write(&writeOpCode, 1);
 	} else { // if you only want to collect a single frame
-		SPI_Write(ADS1298_RDATA, 1); 
-		SPI_Read(pDataBuffer, frameSize); // read the single frame
+        writeOpCode = ADS1298_RDATA;
+		SPI_ADS1298_Write(&writeOpCode, 1); 
+		SPI_ADS1298_Read(pDataBuffer, frameSize); // read the single frame
 		return;
 	}
 	
@@ -179,9 +126,66 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 		while (!SPI_ADS1298_DRDY_NOT);
 		
 		/* Read the data in the frame */
-		SPI_Read(pDataBuffer, frameSize);
+		SPI_ADS1298_Read(pDataBuffer, frameSize);
 	}
 	
 	/* Issue the stop opcode */
-	SPI_Write(ADS1298_SDATAC, 1);
+    writeOpCode = ADS1298_SDATAC;
+	SPI_ADS1298_Write(&writeOpCode, 1);
+}
+
+/***************************************************************************//**
+ * @brief Initialize the ADS1298 registers. 
+ * 
+ * @param None.
+ * 
+ * @return 1 - initialization success, 0 - initialization failed
+*******************************************************************************/
+unsigned char ADS1298_Initialize() {
+	unsigned char status = 0;
+	unsigned char writeVals[25] = {0, 0, 0, 0, 0, \
+                                   0, 0, 0, 0, 0, \
+                                   0, 0, 0, 0, 0, \
+								   0, 0, 0, 0, 0, \
+								   0, 0, 0, 0, 0};
+	
+	/* Initialize the device */
+	status = SPI_ADS1298_Init(1);
+	if (!status) { return 0; } // if initialization was unsuccessful, return 0
+	
+	/* Power up the device */
+	status = ADS1298_PowerUp(); // if initialization was successful, power up the device
+	if (!status) { return 0; } // if the power up was unsuccessful, return 0
+	
+	/* Define the register values to write*/
+	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_CLK | ADS1298_CONFIG1_DR_2K;
+	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST;
+	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN | (0b1u << 6);
+	/* LOFF       */ writeVals[3]  = 0x00;
+	/* CH1SET     */ writeVals[4]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH2SET     */ writeVals[5]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH3SET     */ writeVals[6]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH4SET     */ writeVals[7]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH5SET     */ writeVals[8]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH6SET     */ writeVals[9]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH7SET     */ writeVals[10] = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* CH8SET     */ writeVals[11] = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;
+	/* RLD_SENSP  */ writeVals[12] = 0x00;
+	/* RLD_SENSN  */ writeVals[13] = 0x00;
+	/* LOFF_SENSP */ writeVals[14] = 0x00;
+	/* LOFF_SENSN */ writeVals[15] = 0x00;
+	/* LOFF_FLIP  */ writeVals[16] = 0x00;
+	/* LOFF_STATP */ writeVals[17] = 0x00;
+	/* LOFF_STATN */ writeVals[18] = 0x00;
+	/* GPIO       */ writeVals[19] = 0x00;
+	/* PACE       */ writeVals[20] = 0x00;
+	/* RESP       */ writeVals[21] = 0x00;
+	/* CONFIG4    */ writeVals[22] = 0x00;
+	/* WCT1       */ writeVals[23] = 0x00;
+	/* WCT2       */ writeVals[24] = 0x00;
+	
+	/* Send the register values */
+	ADS1298_WriteRegisters(ADS1298_CONFIG1, 12, writeVals);
+	
+	return 1;
 }
