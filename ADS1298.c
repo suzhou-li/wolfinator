@@ -37,12 +37,13 @@ unsigned char ADS1298_PowerUp() {
 	ADS1298_PWR_PIN = 1;
 	
 	/* Wait appropriate amount of time for the device to power up */
-	for (i = 0; i < 500000; i++) {} 
+	for (i = 0; i < 50000; i++) {} 
 	
 	/* Reset the device by issuing the RESET opcode */
-	writeOpCode = ADS1298_RESET;
-	SPI_ADS1298_Write(&writeOpCode, 1);
-	
+	SPI_ADS1298_CS_PIN = 0;
+	SPI_ADS1298_Write(ADS1298_RESET, 1);
+	SPI_ADS1298_CS_PIN = 1;
+    
 	return 1;
 }
 
@@ -65,8 +66,10 @@ void ADS1298_WriteRegisters(unsigned char address,
 	writeOpCode[1] = writeNum - 1;
 	
 	/* Write the opcode and register values */
+    SPI_ADS1298_CS_PIN = 0;
 	SPI_ADS1298_Write(writeOpCode, 2);
 	SPI_ADS1298_Write(regVals, writeNum);
+    SPI_ADS1298_CS_PIN = 1;
 }
 
 /***************************************************************************//**
@@ -88,8 +91,10 @@ void ADS1298_ReadRegisters(unsigned char address,
 	readOpCode[1] = readNum - 1;
 	
 	/* Write the opcode and read the register values */
+    SPI_ADS1298_CS_PIN = 0;
 	SPI_ADS1298_Write(readOpCode, 2);
 	SPI_ADS1298_Read(regVals, readNum);
+    SPI_ADS1298_CS_PIN = 1;
 }
 
 /***************************************************************************//**
@@ -109,6 +114,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 	unsigned char writeOpCode = 0x00;
     
 	/* Issue the start opcode */
+    SPI_ADS1298_CS_PIN = 0;
 	if (frameCnt > 1) { // if you want to collect more than 1 frame
         writeOpCode = ADS1298_RDATAC;
 		SPI_ADS1298_Write(&writeOpCode, 1);
@@ -132,6 +138,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 	/* Issue the stop opcode */
     writeOpCode = ADS1298_SDATAC;
 	SPI_ADS1298_Write(&writeOpCode, 1);
+    SPI_ADS1298_CS_PIN = 1;
 }
 
 /***************************************************************************//**
@@ -158,7 +165,7 @@ unsigned char ADS1298_Initialize() {
 	if (!status) { return 0; } // if the power up was unsuccessful, return 0
 	
 	/* Define the register values to write*/
-	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_CLK | ADS1298_CONFIG1_DR_2K;
+	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_DR_2K;
 	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST;
 	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN | (0b1u << 6);
 	/* LOFF       */ writeVals[3]  = 0x00;
