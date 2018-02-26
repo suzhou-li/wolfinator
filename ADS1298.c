@@ -31,11 +31,11 @@
 *******************************************************************************/
 unsigned char ADS1298_PowerUp() {
 	unsigned int i = 0;
-	unsigned char writeOpCode = 0x00;
 	
-	/* Bring the power pin HIGH to turn on the device */
+	/* Bring the PWR and RESET pin HIGH to turn on the device */
 	ADS1298_PWR_PIN = 1;
-	
+	ADS1298_RESET_PIN = 1;
+    
 	/* Wait appropriate amount of time for the device to power up */
 	for (i = 0; i < 50000; i++) {} 
 	
@@ -165,8 +165,8 @@ unsigned char ADS1298_Initialize() {
 	if (!status) { return 0; } // if the power up was unsuccessful, return 0
 	
 	/* Define the register values to write*/
-	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_DR_2K;
-	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST;
+	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_DR_2K; // 0x84
+	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST; // 0x20
 	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN | (0b1u << 6);
 	/* LOFF       */ writeVals[3]  = 0x00;
 	/* CH1SET     */ writeVals[4]  = ADS1298_GAIN_12 | ADS1298_MUX_ELEC;

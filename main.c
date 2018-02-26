@@ -13,7 +13,7 @@ void main() {
 	unsigned char* dummy;
 	
 	/* Set the PIC clock frequency */
-    OSCCON = 0b01110110; // set clock to 16 MHz //moved from below RNinit() to here)
+    OSCCON = 0b01110110; // set clock to 16 MHz
 	
 	/* Initialize the ADS1298 */
 	status = ADS1298_Initialize();
