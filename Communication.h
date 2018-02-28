@@ -85,7 +85,7 @@
 
 /* Define the other pins for the ADS1298 */
 #define ADS1298_RESET_DIR		TRISAbits.RA2       // RESET pin direction
-#define ADS1298_RESET_PIN		LATAbits.LATA2      // RESET pin (output)
+#define ADS1298_RESET_PIN   	LATAbits.LATA2      // RESET pin (output)
 
 #define ADS1298_PWR_DIR			TRISAbits.RA4		// PWDN pin direction
 #define ADS1298_PWR_PIN			LATAbits.LATA4		// PWDN pin (output)

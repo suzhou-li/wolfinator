@@ -80,7 +80,7 @@ unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
 	/* Properly configure the SPI/communication pins */
 	
 	SPI_ADS1298_SCLK_DIR = 0; // SCLK on ADS1298 is output
-
+    
 	SPI_ADS1298_DOUT_DIR   = 1; // DOUT on ADS1298 is input into the PIC    
 	SPI_ADS1298_DOUT_ANSEL = 0; // clear analog select bit for PIC input
 

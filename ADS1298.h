@@ -356,6 +356,9 @@
 /* FUNCTIONS PROTOTYPES														  */
 /******************************************************************************/
 
+/* Writes a single opcode to the ADS1298 chip */
+void ADS1298_WriteSingleOpCode(unsigned char writeVals);
+
 /* Powers up the ADS1298 chip */
 unsigned char ADS1298_PowerUp();
 
