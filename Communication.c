@@ -115,7 +115,7 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
 {
     unsigned char i;
     
-    for(i = 0; i < bytesNumber; i++){
+    for(i = 0; i < bytesNumber; i++) {
         SPI_ADS1298_DATABUFFER = *data++;
         while(!SPI_ADS1298_BUFFERFULL);
     }
@@ -136,11 +136,27 @@ unsigned char SPI_ADS1298_Read(unsigned char* data,
 {
     unsigned char i;
     
-    for(i = 0; i < bytesNumber; i++){ 
+    for(i = 0; i < bytesNumber; i++) {  
         SPI_ADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
         while(!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
         *data++ = SPI_ADS1298_DATABUFFER; 
     }
     
     return bytesNumber;
+}
+
+/***************************************************************************//**
+ * @brief Issues "don't care" clock cycles.
+ *
+ * @param bitsNumber - Number of cycles to wait.
+ *
+ * @return None.
+*******************************************************************************/
+void SPI_ADS1298_Wait(unsigned char bitsNumber)
+{
+	unsigned char i;
+	
+	for(i = 0; i < bitsNumber; i++) {
+		SPI_ADS1298_DATABUFFER = 0x00;
+	}
 }

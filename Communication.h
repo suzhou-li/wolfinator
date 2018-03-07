@@ -105,4 +105,7 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
 unsigned char SPI_ADS1298_Read(unsigned char* data,
 							   unsigned char bytesNumber);
 
+/* Issues NOP clock cycles to SPI. */
+void SPI_ADS1298_Wait(unsigned char bitsNumber);
+
 #endif	// _COMMUNICATION_H_
