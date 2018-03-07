@@ -20,10 +20,10 @@ void main() {
 	
 	/* Keep reading these registers */
 	if (status) {
-        ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
-		while (0) {
-            //ADS1298_ReadData(dummy, 1, 24);
-			ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
+        //ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
+		while (1) {
+            ADS1298_ReadData(dummy, 100);
+			//ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
 		}
 	}
 }

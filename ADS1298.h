@@ -372,10 +372,11 @@ void ADS1298_ReadRegisters(unsigned char address,
 						   unsigned char writeNum, 
 						   unsigned char* regVals);
 
+unsigned char ADS1298_ComputeFrameSize(unsigned char numDevices);
+
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
-					  unsigned long frameCnt,
-					  unsigned long frameSize);
+					  unsigned long frameCnt);
 
 /* Initializes the ADS1298 */
 unsigned char ADS1298_Initialize();
