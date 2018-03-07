@@ -65,8 +65,8 @@ unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
 	SPI_ADS1298_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
 	//SPI_ADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
 
-	//SPI_ADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
-	SPI_ADS1298_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
+	SPI_ADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
+	//SPI_ADS1298_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
 
 	/* SSP1 Control Register 1 bits */
 
