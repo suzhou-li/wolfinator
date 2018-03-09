@@ -65,8 +65,12 @@
 /* Define the SPI bits for the ADS1298 data buffer */
 #define SPI_ADS1298_DATABUFFER		SSP1BUF
 
+/* Define the bit for the SSP1 Interrupt Flag */
+#define SPI_ADS1298_INTERRUPT       PIR1bits.SSP1IF
+
 /* Define the pins of the SPI for the ADS1298 in the PIC */
 #define SPI_ADS1298_SCLK_DIR		TRISCbits.RC3       // SCLK on RC3 direction
+#define SPI_ADS1298_SCLK_PIN        LATCbits.LATC3      // PIC SCLK pin
 
 #define SPI_ADS1298_DOUT_DIR		TRISCbits.RC4       // ADS DOUT to RC4 direction
 #define SPI_ADS1298_DOUT_ANSEL		ANSELCbits.ANSC4    // PIC DIN pin analog select bit
@@ -95,7 +99,7 @@
 /******************************************************************************/
 
 /* Initializes the SPI communication peripheral. */
-unsigned char SPI_ADS1298_Init(unsigned char lsbFirst);
+unsigned char SPI_ADS1298_Init();
 
 /* Writes data to SPI. */
 unsigned char SPI_ADS1298_Write(unsigned char* data,
