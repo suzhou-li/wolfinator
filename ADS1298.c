@@ -10,7 +10,11 @@
 #include "ADS1298.h"			
 #include "Communication.h"	
 
+/*****************************************************************************/
+/* CONSTANTS    															 */
+/*****************************************************************************/
 static unsigned long frameSize;
+static unsigned long numDevices;
 
 /*****************************************************************************/
 /* FUNCTIONS																 */
@@ -128,7 +132,7 @@ void ADS1298_ReadRegisters(unsigned char address,
  * 
  * @param	numDevices - number of devices installed
  * 
- * @return	None.
+ * @return	Size of the frame in bits.
 *******************************************************************************/
 unsigned char ADS1298_ComputeFrameSize(unsigned char numDevices) {
     unsigned char numChannels = 0;
@@ -146,15 +150,8 @@ unsigned char ADS1298_ComputeFrameSize(unsigned char numDevices) {
         }
     }
     
-    /* Calculate the frame size */
-    if (numDevices > 1) {
-        frameSize = numDevices * ((numChannels * 8) + 24 + 1); 
-    } else {
-        frameSize = (numChannels * 8) + 24;
-    }
-    
-    /* Return the frame size */
-    return frameSize;
+    /* Calculate and return the frame size */
+    return (numDevices * ((numChannels * 8) + 24)) + (numDevices - 1);
 }
 
 /***************************************************************************//**
@@ -168,15 +165,27 @@ unsigned char ADS1298_ComputeFrameSize(unsigned char numDevices) {
 *******************************************************************************/
 void ADS1298_ReadData(unsigned char* pDataBuffer, 
 					  unsigned long frameCnt) {
-	unsigned char i;
+	unsigned char i, j;
     
 	/* Issue the start opcode */
     SPI_ADS1298_CS_PIN = 0;
 	if (frameCnt > 1) { // if you want to collect more than 1 frame
 		SPI_ADS1298_Write(ADS1298_RDATAC, 1);
 	} else { // if you only want to collect a single frame
-		SPI_ADS1298_Write(ADS1298_RDATA, 1); 
-		SPI_ADS1298_Read(pDataBuffer, frameSize); // read the single frame
+		/* Wait for the DRDY_NOT line to go low */
+		while (!SPI_ADS1298_DRDY_NOT);
+		
+        /* Read all frames except for the last one */
+		for(j = 0; j < numDevices - 1; j = j + 1) {
+            /* Read the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, (frameSize - numDevices + 1) / numDevices / 8);
+            SPI_ADS1298_Wait(1); // issue 1 SCLK cycle
+        }
+        
+        /* Read the last frame */
+        SPI_ADS1298_Read(pDataBuffer, (frameSize - numDevices + 1) / numDevices / 8);
+        
+        /* Exit from the function */
         SPI_ADS1298_CS_PIN = 1;
 		return;
 	}
@@ -187,8 +196,15 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 		/* Wait for the DRDY_NOT line to go low */
 		while (!SPI_ADS1298_DRDY_NOT);
 		
-		/* Read the data in the frame */
-		SPI_ADS1298_Read(pDataBuffer, frameSize);
+        /* Read all frames except for the last one */
+		for(j = 0; j < numDevices - 1; j = j + 1) {
+            /* Read the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, (frameSize - numDevices + 1) / numDevices / 8);
+            SPI_ADS1298_Wait(1); // issue 1 SCLK cycle
+        }
+        
+        /* Read the last frame */
+        SPI_ADS1298_Read(pDataBuffer, (frameSize - numDevices + 1) / numDevices / 8);
 	}
 	
 	/* Issue the stop opcode */
@@ -203,7 +219,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
  * 
  * @return 1 - initialization success, 0 - initialization failed
 *******************************************************************************/
-unsigned char ADS1298_Initialize() {
+unsigned char ADS1298_Initialize(unsigned long devices) {
 	unsigned char status = 0;
 	unsigned char writeVals[25] = {0, 0, 0, 0, 0, \
                                    0, 0, 0, 0, 0, \
@@ -212,7 +228,7 @@ unsigned char ADS1298_Initialize() {
 								   0, 0, 0, 0, 0};
 	
 	/* Initialize the device */
-	status = SPI_ADS1298_Init(1);
+	status = SPI_ADS1298_Init();
 	if (!status) { return 0; } // if initialization was unsuccessful, return 0
 	
 	/* Power up the device */
@@ -221,17 +237,17 @@ unsigned char ADS1298_Initialize() {
 	
 	/* Define the register values to write*/
 	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_DR_2K; // 0x84
-	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST | ADS1298_CONFIG2_INTTEST | ADS1298_CONFIG2_TESTAMP | ADS1298_CONFIG2_TESTFREQ_AC20;
+	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST | ADS1298_CONFIG2_TESTAMP | ADS1298_CONFIG2_TESTFREQ_AC20;
 	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN | (0b1u << 6);
 	/* LOFF       */ writeVals[3]  = 0x00;
-	/* CH1SET     */ writeVals[4]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH2SET     */ writeVals[5]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH3SET     */ writeVals[6]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH4SET     */ writeVals[7]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH5SET     */ writeVals[8]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH6SET     */ writeVals[9]  = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH7SET     */ writeVals[10] = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
-	/* CH8SET     */ writeVals[11] = ADS1298_GAIN_12 | ADS1298_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH1SET     */ writeVals[4]  = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH2SET     */ writeVals[5]  = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH3SET     */ writeVals[6]  = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH4SET     */ writeVals[7]  = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH5SET     */ writeVals[8]  = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH6SET     */ writeVals[9]  = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH7SET     */ writeVals[10] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
+	/* CH8SET     */ writeVals[11] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT; //ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
 	/* RLD_SENSP  */ writeVals[12] = 0x00;
 	/* RLD_SENSN  */ writeVals[13] = 0x00;
 	/* LOFF_SENSP */ writeVals[14] = 0x00;
@@ -250,7 +266,8 @@ unsigned char ADS1298_Initialize() {
 	ADS1298_WriteRegisters(ADS1298_CONFIG1, 12, writeVals);
                     
     /* Compute the frame size */
-    ADS1298_ComputeFrameSize(1);
+    numDevices = devices;
+    frameSize = ADS1298_ComputeFrameSize(numDevices);
     
 	return 1;
 }

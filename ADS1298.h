@@ -165,26 +165,26 @@
 /******************************************************************************/
 /* ADS1298 Individual Channel Settings Registers							  */
 /******************************************************************************/
-#define ADS1298_PD				(0b01u << 7)		// Power-down
-												//	0 = Normal operation
-												//	1 = Channel power-down
-												// PGA gain
-#define ADS1298_GAIN_6			(0b000u << 4)	//	000 = 6
-#define ADS1298_GAIN_1			(0b001u << 4)	//	001 = 1
-#define ADS1298_GAIN_2			(0b010u << 4)	//	010 = 2
-#define ADS1298_GAIN_3			(0b011u << 4)	//	011 = 3
-#define ADS1298_GAIN_4			(0b100u << 4)	//	100 = 4
-#define ADS1298_GAIN_8			(0b101u << 4)	//	101 = 8
-#define ADS1298_GAIN_12			(0b110u << 4)	//	110 = 12
-												// Channel input
-#define ADS1298_MUX_ELEC		(0b000u << 0)	//	000 = Normal electrode input
-#define ADS1298_MUX_SHORT		(0b001u << 0)	//	001 = Input shorted (for offset or noise measurements)
-#define ADS1298_MUX_RLDMEAS		(0b010u << 0)	//	010 = RLD measurements
-#define ADS1298_MUX_MVDD		(0b011u << 0)	//	011 = MVDD for supply measurement
-#define ADS1298_MUX_TEMP		(0b100u << 0)	//	100 = Temperature sensor
-#define ADS1298_MUX_TEST		(0b101u << 0)	//	101 = Test signal
-#define ADS1298_MUX_RLDDRP		(0b110u << 0)	//	110 = RLD_DRP
-#define ADS1298_MUX_RLDDRN		(0b111u << 0)	//	111 = RLD_DRN
+#define ADS1298_CHSET_PD				(0b01u << 7)	// Power-down
+                                                        //	0 = Normal operation
+                                                        //	1 = Channel power-down
+                                                        // PGA gain
+#define ADS1298_CHSET_GAIN_6			(0b000u << 4)	//	000 = 6
+#define ADS1298_CHSET_GAIN_1			(0b001u << 4)	//	001 = 1
+#define ADS1298_CHSET_GAIN_2			(0b010u << 4)	//	010 = 2
+#define ADS1298_CHSET_GAIN_3			(0b011u << 4)	//	011 = 3
+#define ADS1298_CHSET_GAIN_4			(0b100u << 4)	//	100 = 4
+#define ADS1298_CHSET_GAIN_8			(0b101u << 4)	//	101 = 8
+#define ADS1298_CHSET_GAIN_12			(0b110u << 4)	//	110 = 12
+                                                    	// Channel input
+#define ADS1298_CHSET_MUX_ELEC          (0b000u << 0)	//	000 = Normal electrode input
+#define ADS1298_CHSET_MUX_SHORT     	(0b001u << 0)	//	001 = Input shorted (for offset or noise measurements)
+#define ADS1298_CHSET_MUX_RLDMEAS		(0b010u << 0)	//	010 = RLD measurements
+#define ADS1298_CHSET_MUX_MVDD          (0b011u << 0)	//	011 = MVDD for supply measurement
+#define ADS1298_CHSET_MUX_TEMP          (0b100u << 0)	//	100 = Temperature sensor
+#define ADS1298_CHSET_MUX_TEST      	(0b101u << 0)	//	101 = Test signal
+#define ADS1298_CHSET_MUX_RLDDRP		(0b110u << 0)	//	110 = RLD_DRP
+#define ADS1298_CHSET_MUX_RLDDRN		(0b111u << 0)	//	111 = RLD_DRN
 
 /******************************************************************************/
 /* ADS1298 RLD (Positive/Negative) Signal Derivation Register				  */

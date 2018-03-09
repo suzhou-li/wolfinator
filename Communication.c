@@ -48,13 +48,11 @@
 /***************************************************************************//**
  * @brief Initializes the SPI communication peripheral.
  *
- * @param lsbFirst - Transfer format (0 or 1).
- *                   Example: 0x0 - MSB first.
- *                            0x1 - LSB first.
+ * @param None.
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
+unsigned char SPI_ADS1298_Init() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP1CON1 = 0x00; // SSP control register 1
@@ -62,8 +60,8 @@ unsigned char SPI_ADS1298_Init(unsigned char lsbFirst) {
 
 	/* SSP1 Status Register bits */
 
-	SPI_ADS1298_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
-	//SPI_ADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
+	//SPI_ADS1298_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
+	SPI_ADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
 
 	SPI_ADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
 	//SPI_ADS1298_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
@@ -118,6 +116,7 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
     for(i = 0; i < bytesNumber; i++) {
         SPI_ADS1298_DATABUFFER = *data++;
         while(!SPI_ADS1298_BUFFERFULL);
+        SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
     }
     
 	return bytesNumber;
@@ -140,6 +139,7 @@ unsigned char SPI_ADS1298_Read(unsigned char* data,
         SPI_ADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
         while(!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
         *data++ = SPI_ADS1298_DATABUFFER; 
+        SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
     }
     
     return bytesNumber;
@@ -154,9 +154,12 @@ unsigned char SPI_ADS1298_Read(unsigned char* data,
 *******************************************************************************/
 void SPI_ADS1298_Wait(unsigned char bitsNumber)
 {
-	unsigned char i;
-	
-	for(i = 0; i < bitsNumber; i++) {
-		SPI_ADS1298_DATABUFFER = 0x00;
-	}
+	unsigned char i, j;
+    
+    for(i = 0; i < bitsNumber; i++) {
+        SPI_ADS1298_DATABUFFER = 0x00;
+        for(j = 0; j < 8; j++);
+        //SPI_ADS1298_INTERRUPT = 1;
+        SPI_ADS1298_SCLK_PIN = 0;
+    }
 }
