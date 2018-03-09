@@ -1,44 +1,54 @@
-/* 
- * File:   LogicAnalyzer.h
- * Author: BME464
- *
- * Created on November 29, 2017, 11:15 AM
- */
+/***************************************************************************//**
+ *   @file   LogicAnalyzer.h
+ *   @brief  Header to the Logic Analyzer driver.
+ *   @author Suzhou Li (suzhou.li@duke.edu)
+*******************************************************************************/
 
 #ifndef LOGICANALYZER_H
 #define	LOGICANALYZER_H
 
 #include <p18f46k22.h>
 
-#define LogicAnalyzer_BIT7          LATDbits.LATD7
-#define LogicAnalyzer_BIT7_DIR      TRISDbits.RD7
+/******************************************************************************/
+/* LOGIC ANALYZER PINS  													  */
+/******************************************************************************/
 
-#define LogicAnalyzer_BIT6          LATDbits.LATD6
-#define LogicAnalyzer_BIT6_DIR      TRISDbits.RD6
+#define LogicAnalyzer_BIT7          LATBbits.LATB7
+#define LogicAnalyzer_BIT7_DIR      TRISBbits.RB7
 
-#define LogicAnalyzer_BIT5          LATDbits.LATD5
-#define LogicAnalyzer_BIT5_DIR      TRISDbits.RD5
+#define LogicAnalyzer_BIT6          LATBbits.LATB6
+#define LogicAnalyzer_BIT6_DIR      TRISBbits.RB6
 
-#define LogicAnalyzer_BIT4          LATDbits.LATD4
-#define LogicAnalyzer_BIT4_DIR      TRISDbits.RD4
+#define LogicAnalyzer_BIT5          LATBbits.LATB5
+#define LogicAnalyzer_BIT5_DIR      TRISBbits.RB5
 
-#define LogicAnalyzer_BIT3          LATDbits.LATD3
-#define LogicAnalyzer_BIT3_DIR      TRISDbits.RD3
+#define LogicAnalyzer_BIT4          LATBbits.LATB4
+#define LogicAnalyzer_BIT4_DIR      TRISBbits.RB4
 
-#define LogicAnalyzer_BIT2          LATDbits.LATD2
-#define LogicAnalyzer_BIT2_DIR      TRISDbits.RD2
+#define LogicAnalyzer_BIT3          LATAbits.LATA4
+#define LogicAnalyzer_BIT3_DIR      TRISAbits.RA4
 
-#define LogicAnalyzer_BIT1          LATDbits.LATD1
-#define LogicAnalyzer_BIT1_DIR      TRISDbits.RD1
+#define LogicAnalyzer_BIT2          LATEbits.LATE2
+#define LogicAnalyzer_BIT2_DIR      TRISEbits.RE2
 
-#define LogicAnalyzer_BIT0          LATDbits.LATD0
-#define LogicAnalyzer_BIT0_DIR      TRISDbits.RD0
+#define LogicAnalyzer_BIT1          LATEbits.LATE1
+#define LogicAnalyzer_BIT1_DIR      TRISEbits.RE1
 
-#define LogicAnalyzer_CLK           LATEbits.LATE0
-#define LogicAnalyzer_CLK_DIR       TRISEbits.RE0
+#define LogicAnalyzer_BIT0          LATEbits.LATE0
+#define LogicAnalyzer_BIT0_DIR      TRISEbits.RE0
 
-void LogicAnalyzer_init();
-void LogicAnalyzer_outChar(unsigned char data);
+#define LogicAnalyzer_CLK           LATAbits.LATA5
+#define LogicAnalyzer_CLK_DIR       TRISAbits.RA5
+
+/******************************************************************************/
+/* FUNCTIONS PROTOTYPES														  */
+/******************************************************************************/
+
+/* Initialize the interface to the logic analyzer */
+void LogicAnalyzer_Init();
+
+/* Print out an 8-bit character to the logic analyzer */
+void LogicAnalyzer_OutChar(unsigned char data);
 
 #endif	/* LOGICANALYZER_H */
 

@@ -1,13 +1,21 @@
+/***************************************************************************//**
+ *   @file   LogicAnalyzer.c
+ *   @brief  Implementation of the Logic Analyzer driver used to print data out 
+ *           to the logic analyzer.
+ *   @author Suzhou Li (suzhou.li@duke.edu)
+*******************************************************************************/
+
 #include "LogicAnalyzer.h"
 
-
-//*** LogicAnalyzer_init() ***//
-/* @brief Configures the pins on the PIC to output to the Logic Analyzer.
- *        Logic Analyzer can display data that is 1 byte (8 bits) long.
- * @param None.
+/***************************************************************************//**
+ * @brief  Configures the pins on the PIC to output to the Logic Analyzer.
+ *         Logic Analyzer can display data that is 1 byte (8 bits) long.
+ *
+ * @param  None.
+ *
  * @return None.
- */
-void LogicAnalyzer_init(){
+*******************************************************************************/
+void LogicAnalyzer_Init(){
     
     /* It outputs 1 byte and a clock as follows:
      * Data bits 0-3  output on Port E 0-2 and Port A 4
@@ -25,12 +33,15 @@ void LogicAnalyzer_init(){
     LogicAnalyzer_CLK_DIR = 0;
 }
 
-//*** LogicAnalyzer_outChar() ***//
-/* @brief Outputs a byte of data to the logic analyzer.
- * @param data - Byte of data that you want to output to logic analyzer.
+/***************************************************************************//**
+ * @brief  Outputs a byte of data to the logic analyzer.
+ *
+ * @param  data - Byte of data that you want to output to logic analyzer.
+ *
  * @return None.
- */
-void LogicAnalyzer_outChar(unsigned char data) {
+*******************************************************************************/
+void LogicAnalyzer_OutChar(unsigned char data) {
+    unsigned char i;
     
     /* Turn on the appropriate bits */
     LogicAnalyzer_BIT7 = (data >> 7) & 0x01; // most significant bit (bit 7)
@@ -44,5 +55,6 @@ void LogicAnalyzer_outChar(unsigned char data) {
     
     /* Toggle clock bit */
     LogicAnalyzer_CLK = 1;
+    for(i = 0; i < 16; i++);
     LogicAnalyzer_CLK = 0;
 }
