@@ -170,8 +170,10 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 	/* Issue the start opcode */
     SPI_ADS1298_CS_PIN = 0;
 	if (frameCnt > 1) { // if you want to collect more than 1 frame
-		SPI_ADS1298_Write(ADS1298_RDATAC, 1);
+		ADS1298_WriteSingleOpCode(ADS1298_RDATAC);
 	} else { // if you only want to collect a single frame
+        ADS1298_WriteSingleOpCode(ADS1298_RDATA);
+        
 		/* Wait for the DRDY_NOT line to go low */
 		while (!SPI_ADS1298_DRDY_NOT);
 		
@@ -237,7 +239,7 @@ unsigned char ADS1298_Initialize(unsigned long devices) {
 	
 	/* Define the register values to write*/
 	/* CONFIG1    */ writeVals[0]  = ADS1298_CONFIG1_HR | ADS1298_CONFIG1_DR_2K; // 0x84
-	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST | ADS1298_CONFIG2_TESTAMP | ADS1298_CONFIG2_TESTFREQ_AC20;
+	/* CONFIG2    */ writeVals[1]  = ADS1298_CONFIG2_WCTCHOPCONST | ADS1298_CONFIG2_INTTEST | ADS1298_CONFIG2_TESTAMP | ADS1298_CONFIG2_TESTFREQ_AC20;
 	/* CONFIG3    */ writeVals[2]  = ADS1298_CONFIG3_INTREFEN | (0b1u << 6);
 	/* LOFF       */ writeVals[3]  = 0x00;
 	/* CH1SET     */ writeVals[4]  = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST; //ADS1298_MUX_ELEC;
