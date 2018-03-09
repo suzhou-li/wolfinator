@@ -16,14 +16,14 @@ void main() {
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
 	/* Initialize the ADS1298 */
-	status = ADS1298_Initialize();
+	status = ADS1298_Initialize(1ul);
 	
 	/* Keep reading these registers */
 	if (status) {
-        //ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
 		while (1) {
-            ADS1298_ReadData(dummy, 100);
-			//ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
+            //SPI_ADS1298_Wait(1);
+            ADS1298_ReadData(dummy, 10ul);
+			//ADS1298_ReadRegisters(ADS1298_ID, 12, dummy);
 		}
 	}
 }
