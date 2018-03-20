@@ -25,20 +25,35 @@
 #define LogicAnalyzer_BIT4          LATBbits.LATB4
 #define LogicAnalyzer_BIT4_DIR      TRISBbits.RB4
 
-#define LogicAnalyzer_BIT3          LATAbits.LATA4
-#define LogicAnalyzer_BIT3_DIR      TRISAbits.RA4
+#define LogicAnalyzer_BIT3          LATBbits.LATB3
+#define LogicAnalyzer_BIT3_DIR      TRISBbits.RB3
 
-#define LogicAnalyzer_BIT2          LATEbits.LATE2
-#define LogicAnalyzer_BIT2_DIR      TRISEbits.RE2
+#define LogicAnalyzer_BIT2          LATBbits.LATB2
+#define LogicAnalyzer_BIT2_DIR      TRISBbits.RB2
 
-#define LogicAnalyzer_BIT1          LATEbits.LATE1
-#define LogicAnalyzer_BIT1_DIR      TRISEbits.RE1
+#define LogicAnalyzer_BIT1          LATBbits.LATB1
+#define LogicAnalyzer_BIT1_DIR      TRISBbits.RB1
 
-#define LogicAnalyzer_BIT0          LATEbits.LATE0
-#define LogicAnalyzer_BIT0_DIR      TRISEbits.RE0
+#define LogicAnalyzer_BIT0          LATBbits.LATB0
+#define LogicAnalyzer_BIT0_DIR      TRISBbits.RB0
 
-#define LogicAnalyzer_CLK           LATAbits.LATA5
-#define LogicAnalyzer_CLK_DIR       TRISAbits.RA5
+#define LogicAnalyzer_CLK           LATDbits.LATD7
+#define LogicAnalyzer_CLK_DIR       TRISDbits.RD7
+
+//#define LogicAnalyzer_BIT3          LATAbits.LATA4
+//#define LogicAnalyzer_BIT3_DIR      TRISAbits.RA4
+
+//#define LogicAnalyzer_BIT2          LATEbits.LATE2
+//#define LogicAnalyzer_BIT2_DIR      TRISEbits.RE2
+
+//#define LogicAnalyzer_BIT1          LATEbits.LATE1
+//#define LogicAnalyzer_BIT1_DIR      TRISEbits.RE1
+
+//#define LogicAnalyzer_BIT0          LATEbits.LATE0
+//#define LogicAnalyzer_BIT0_DIR      TRISEbits.RE0
+
+//#define LogicAnalyzer_CLK           LATAbits.LATA5
+//#define LogicAnalyzer_CLK_DIR       TRISAbits.RA5
 
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */
