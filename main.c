@@ -18,17 +18,19 @@ void main() {
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
 	/* Initialize the ADS1298 */
-	status = ADS1298_Initialize(1ul);
+	status = ADS1298_Initialize(2ul);
 	LogicAnalyzer_Init();
     
 	/* Keep reading these registers */
 	if (status) {
 		while (1) {
+            ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
+            
             /* Read the test data */
-            ADS1298_ReadData(dummy, 1ul);
+            //ADS1298_ReadData(dummy, 1ul);
             
             /* Print the data to the logic analyzer */
-            LogicAnalyzer_OutChar(*(dummy + 3));
+            //LogicAnalyzer_OutChar(*(dummy + 3));
 		}
 	}
 }
