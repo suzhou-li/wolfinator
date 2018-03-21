@@ -356,23 +356,29 @@
 /* FUNCTIONS PROTOTYPES														  */
 /******************************************************************************/
 
-/* Writes a single opcode to the ADS1298 chip */
+/* Writes a single opcode to a ADS1298 chip */
 void ADS1298_WriteSingleOpCode(unsigned char writeVals);
 
 /* Powers up the ADS1298 chip */
 unsigned char ADS1298_PowerUp();
 
 /* Writes values to the registers of the ADS1298 */
-void ADS1298_WriteRegisters(unsigned char address, 
+void ADS1298_WriteRegisters(unsigned char device, 
+							unsigned char address, 
 							unsigned char writeNum, 
 							unsigned char* regVals);
 
 /* Reads values from the registers of the ADS1298 */
-void ADS1298_ReadRegisters(unsigned char address, 
+void ADS1298_ReadRegisters(unsigned char device, 
+						   unsigned char address, 
 						   unsigned char writeNum, 
 						   unsigned char* regVals);
 
-unsigned char ADS1298_ComputeFrameSize(unsigned char numDevices);
+/* Computes the frame size for each ADS1298 chip */
+void ADS1298_ComputeFrameSize();
+
+/* Sets the registers for testing */
+unsigned char ADS1298_RegistersForTesting();
 
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,

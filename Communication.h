@@ -77,8 +77,11 @@
 
 #define SPI_ADS1298_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
 
-#define SPI_ADS1298_CS_DIR			TRISAbits.RA1       // ADS CS from RA0 direction
-#define SPI_ADS1298_CS_PIN			LATAbits.LATA1      // PIC CS pin (output) 
+#define SPI_ADS1298_CS1_DIR			TRISAbits.RA1       // ADS CS (device 1) from RA0 direction
+#define SPI_ADS1298_CS1_PIN			LATAbits.LATA1      // PIC CS (device 1) pin (output) 
+
+#define SPI_ADS1298_CS2_DIR			TRISAbits.RA2       // ADS CS (device 2) from RA0 direction
+#define SPI_ADS1298_CS2_PIN			LATAbits.LATA2      // PIC CS (device 2) pin (output) 
 
 #define SPI_ADS1298_DRDY_DIR		TRISAbits.RA0       // DRDY pin direction
 #define SPI_ADS1298_DRDY_ANSEL		ANSELAbits.ANSA0    // DRDY pin analog select bit
