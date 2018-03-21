@@ -89,8 +89,6 @@ unsigned char SPI_ADS1298_Init() {
 	SPI_ADS1298_DRDY_DIR   = 1; // DRDY on ADS1298 is input into PIC
 	SPI_ADS1298_DRDY_ANSEL = 0;	// clear analog select bit for DRDY
 	
-	SPI_ADS1298_START_DIR = 0;
-	
 	/* Properly configure the other pins */
 	
 	ADS1298_RESET_DIR = 0; // RESET is output

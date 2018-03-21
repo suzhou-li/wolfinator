@@ -77,19 +77,16 @@
 
 #define SPI_ADS1298_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
 
-#define SPI_ADS1298_CS_DIR			TRISAbits.RA0       // ADS CS from RA0 direction
-#define SPI_ADS1298_CS_PIN			LATAbits.LATA0      // PIC CS pin (output) 
+#define SPI_ADS1298_CS_DIR			TRISAbits.RA1       // ADS CS from RA0 direction
+#define SPI_ADS1298_CS_PIN			LATAbits.LATA1      // PIC CS pin (output) 
 
-#define SPI_ADS1298_DRDY_DIR		TRISAbits.RA3       // DRDY pin direction
-#define SPI_ADS1298_DRDY_ANSEL		ANSELAbits.ANSA3    // DRDY pin analog select bit
-#define SPI_ADS1298_DRDY_NOT		PORTAbits.RA3       // DRDY pin (input)
-
-#define SPI_ADS1298_START_DIR		TRISAbits.RA5		// ADS START from RA5 direction
-#define SPI_ADS1298_START_PIN		LATAbits.LATA5		// PIC START pin (output)
+#define SPI_ADS1298_DRDY_DIR		TRISAbits.RA0       // DRDY pin direction
+#define SPI_ADS1298_DRDY_ANSEL		ANSELAbits.ANSA0    // DRDY pin analog select bit
+#define SPI_ADS1298_DRDY_NOT		PORTAbits.RA0       // DRDY pin (input)
 
 /* Define the other pins for the ADS1298 */
-#define ADS1298_RESET_DIR		TRISAbits.RA2       // RESET pin direction
-#define ADS1298_RESET_PIN   	LATAbits.LATA2      // RESET pin (output)
+#define ADS1298_RESET_DIR		TRISAbits.RA3       // RESET pin direction
+#define ADS1298_RESET_PIN   	LATAbits.LATA3      // RESET pin (output)
 
 #define ADS1298_PWR_DIR			TRISAbits.RA4		// PWDN pin direction
 #define ADS1298_PWR_PIN			LATAbits.LATA4		// PWDN pin (output)

@@ -18,7 +18,7 @@ void main() {
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
 	/* Initialize the ADS1298 */
-	status = ADS1298_Initialize(2ul);
+	status = ADS1298_Initialize(1ul);
 	LogicAnalyzer_Init();
     
 	/* Keep reading these registers */
