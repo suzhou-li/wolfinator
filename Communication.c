@@ -1,7 +1,7 @@
 /***************************************************************************//**
  *   @file   Communication.c
  *   @brief  Implementation of Communication Driver.
- *   @author DBogdan (dragos.bogdan@analog.com)
+ *   @author Suzhou Li (suzhou.li@duke.edu)
 ********************************************************************************
  * Copyright 2012(c) Analog Devices, Inc.
  *
