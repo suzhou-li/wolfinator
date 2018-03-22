@@ -84,13 +84,20 @@ unsigned char SPI_ADS1298_Initialize() {
 
 	SPI_ADS1298_DIN_DIR = 0; // DIN on ADS1298 is output from PIC
 	
-	SPI_ADS1298_CS_DIR = 0; // CS on ADS1298 is output from PIC
+    SPI_ADS1298_DRDY1_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 1)
+	SPI_ADS1298_DRDY1_ANSEL = 0;	// clear analog select bit for DRDY (device 1)
 	
-	SPI_ADS1298_DRDY_DIR   = 1; // DRDY on ADS1298 is input into PIC
-	SPI_ADS1298_DRDY_ANSEL = 0;	// clear analog select bit for DRDY
-	
+    SPI_ADS1298_DRDY2_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 2)
+	SPI_ADS1298_DRDY2_ANSEL = 0;	// clear analog select bit for DRDY (device 2)
+    
+	SPI_ADS1298_CS1_DIR = 0; // CS on ADS1298 is output from PIC (device 1)
+    
+	SPI_ADS1298_CS2_DIR = 0; // CS on ADS1298 is output from PIC (device 2)
+    
 	/* Properly configure the other pins */
 	
+    ADS1298_START_DIR = 0; // START is output
+    
 	ADS1298_RESET_DIR = 0; // RESET is output
 
 	ADS1298_PWR_DIR = 0; // PWRDN on ADS1298 is output from PIC
@@ -113,7 +120,7 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
     
     for(i = 0; i < bytesNumber; i++) {
         SPI_ADS1298_DATABUFFER = *data++;
-        while(!SPI_ADS1298_BUFFERFULL);
+        while (!SPI_ADS1298_BUFFERFULL);
         SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
     }
     
@@ -135,7 +142,7 @@ unsigned char SPI_ADS1298_Read(unsigned char* data,
     
     for(i = 0; i < bytesNumber; i++) {  
         SPI_ADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
-        while(!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
+        while (!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
         *data++ = SPI_ADS1298_DATABUFFER; 
         SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
     }

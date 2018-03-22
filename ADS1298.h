@@ -4,8 +4,8 @@
  *   @author Suzhou Li (suzhou.li@duke.edu)
 *******************************************************************************/
 
-#ifndef _ADS1298_H_
-#define _ADS1298_H_
+#ifndef ADS1298_H
+#define ADS1298_H
 
 /******************************************************************************/
 /* ADS1298 OPCODE COMMANDS													  */
@@ -387,4 +387,4 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
 /* Initializes the ADS1298 */
 unsigned char ADS1298_Initialize(unsigned char* channels);
 
-#endif /* _ADS1298_H_ */
+#endif /* ADS1298_H */
