@@ -57,6 +57,5 @@ void LogicAnalyzer_OutputChar(unsigned char data) {
     
     /* Toggle clock bit */
     LogicAnalyzer_CLK = 1;
-    for(i = 0; i < 16; i++);
     LogicAnalyzer_CLK = 0;
 }
