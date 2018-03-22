@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #include "ADS1298.h"
-#include "Communication.h"
+#include "SPI_ADS1298.h"
 #include "LogicAnalyzer.h"
 
 void main() {
