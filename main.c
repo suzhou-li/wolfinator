@@ -7,14 +7,15 @@
 #include <stdlib.h>
 
 #include "ADS1298.h"
-#include "SPI_ADS1298.h"
 #include "LogicAnalyzer.h"
+#include "SPI_ADS1298.h"
 
 void main() {
 	unsigned char status;
-	unsigned char* dummy;
-	unsigned char* channels[2] = {0, 0};
-	
+    unsigned char dummy[100];
+    unsigned char channels[2] = {0, 0};
+    unsigned long i;
+    
 	/* Set the PIC clock frequency */
 	/* bit 7   (IDLEN): 0 = Device enter Sleep mode on SLEEP instruction
 	 * bit 6-4 (IRCF): 111 = 16 MHz internal RC oscillator
@@ -30,18 +31,22 @@ void main() {
 	status = ADS1298_Initialize(channels);
 	
 	/* Initialize the Logic Analyzer */
-	status = status & LogicAnalyzer_Initialize();
+	status &= LogicAnalyzer_Initialize();
     
 	/* Keep reading these registers */
 	if (status) {
 		while (1) {
-            ADS1298_ReadRegisters(ADS1298_ID, 1, dummy);
+            /* Read register data */
+            //ADS1298_ReadRegisters(1, ADS1298_ID, 1, dummy);
+            //ADS1298_ReadRegisters(2, ADS1298_ID, 1, dummy);
             
             /* Read the test data */
-            //ADS1298_ReadData(dummy, 1ul);
+            ADS1298_ReadData(dummy, 30ul);
             
             /* Print the data to the logic analyzer */
-            //LogicAnalyzer_OutputChar(*(dummy + 3)); // output value of the first channel
+            for (i = 0; i < 30; i = i + 1) {
+                LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
+            }
 		}
 	}
 }
