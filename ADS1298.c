@@ -156,10 +156,10 @@ void ADS1298_ReadRegisters(unsigned char device,
  * @return	None.
 *******************************************************************************/
 void ADS1298_ComputeFrameSize() {
+	unsigned char i;
     unsigned char numCh1 = 0; // number of channels active in device 1
 	unsigned char numCh2 = 0; // number of channels active in device 2
     unsigned char chRegVals[16];
-	unsigned char i;
     
     /* Read the register values containing the channel settings */
     ADS1298_ReadRegisters(1, ADS1298_CH1SET, 8, chRegVals);
@@ -168,8 +168,8 @@ void ADS1298_ComputeFrameSize() {
     /* Iterate through the channel values to see which ones are powered down */
     i = 0;
     for (i = 0; i < 16; i = i + 1) {
-        if ((chRegVals[i] & 0b10000000) == 0x00) {
-			if ((i >= 0) && (i < 8))  { numCh1 = numCh1 + 1; } // if not powered down, increment
+        if ((chRegVals[i] & 0b10000000) == 0x00) { // if not powered down, increment
+			if ((i >= 0) && (i < 8))  { numCh1 = numCh1 + 1; } 
 			if ((i >= 8) && (i < 16)) { numCh2 = numCh2 + 1; }
         }
     }
@@ -192,8 +192,8 @@ void ADS1298_ComputeFrameSize() {
 *******************************************************************************/
 void ADS1298_ReadData(unsigned char* pDataBuffer, 
 					  unsigned long frameCnt) {
+	unsigned char i, j;
 	unsigned long frameSize;
-    unsigned char i, j;
 	
 	i = 0;
 	for (i = 0; i < 2; i = i + 1) {
@@ -316,9 +316,8 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
 unsigned char ADS1298_Initialize(unsigned char* channels) {
 	unsigned char status = 0;
 	
-	
 	/* Initialize the device */
-	status = SPI_ADS1298_Init();
+	status = SPI_ADS1298_Initialize();
 	if (!status) { return 0; } // if initialization was unsuccessful, return 0
 	
 	/* Power up the device */

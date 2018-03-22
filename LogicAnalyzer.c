@@ -15,7 +15,7 @@
  *
  * @return None.
 *******************************************************************************/
-void LogicAnalyzer_Init(){
+unsigned char LogicAnalyzer_Initialize(){
     
     /* It outputs 1 byte and a clock as follows:
      * Data bits 0-3  output on Port E 0-2 and Port A 4
@@ -31,6 +31,8 @@ void LogicAnalyzer_Init(){
     LogicAnalyzer_BIT1_DIR = 0; // bit 1
     LogicAnalyzer_BIT0_DIR = 0; // least significant bit (bit 0)
     LogicAnalyzer_CLK_DIR = 0;
+	
+	return 1;
 }
 
 /***************************************************************************//**
@@ -40,7 +42,7 @@ void LogicAnalyzer_Init(){
  *
  * @return None.
 *******************************************************************************/
-void LogicAnalyzer_OutChar(unsigned char data) {
+void LogicAnalyzer_OutputChar(unsigned char data) {
     unsigned char i;
     
     /* Turn on the appropriate bits */

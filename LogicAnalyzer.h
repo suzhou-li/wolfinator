@@ -60,10 +60,10 @@
 /******************************************************************************/
 
 /* Initialize the interface to the logic analyzer */
-void LogicAnalyzer_Init();
+unsigned char LogicAnalyzer_Initialize();
 
 /* Print out an 8-bit character to the logic analyzer */
-void LogicAnalyzer_OutChar(unsigned char data);
+void LogicAnalyzer_OutputChar(unsigned char data);
 
 #endif	/* LOGICANALYZER_H */
 

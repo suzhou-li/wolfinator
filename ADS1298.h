@@ -378,13 +378,13 @@ void ADS1298_ReadRegisters(unsigned char device,
 void ADS1298_ComputeFrameSize();
 
 /* Sets the registers for testing */
-unsigned char ADS1298_RegistersForTesting();
+unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
 
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt);
 
 /* Initializes the ADS1298 */
-unsigned char ADS1298_Initialize();
+unsigned char ADS1298_Initialize(unsigned char* channels);
 
 #endif /* _ADS1298_H_ */

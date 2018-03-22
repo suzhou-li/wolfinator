@@ -46,13 +46,13 @@
 #include "Communication.h"
 
 /***************************************************************************//**
- * @brief Initializes the SPI communication peripheral.
+ * @brief Initializes the SPI communication peripheral for the ADS1298 chip.
  *
  * @param None.
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_ADS1298_Init() {
+unsigned char SPI_ADS1298_Initialize() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP1CON1 = 0x00; // SSP control register 1
@@ -71,7 +71,7 @@ unsigned char SPI_ADS1298_Init() {
 	SPI_ADS1298_CLKPOL = 0; // idle state for clock is low
 	//SPI_ADS1298_CLKPOL = 1; // idle state for clock is high
 	
-	SPI_ADS1298_FOSC = 0000; // set frequency of the shift clock
+	SPI_ADS1298_FOSC = 0000; // set frequency of the shift clock (divide clock frequency by 4)
 	
 	SPI_ADS1298_ENABLE = 1; // enable the SPI
 
@@ -99,7 +99,7 @@ unsigned char SPI_ADS1298_Init() {
 }
 
 /***************************************************************************//**
- * @brief Writes data to SPI.
+ * @brief Writes data to SPI of the ADS1298 chip.
  *
  * @param data - data represents the write buffer.
  * @param bytesNumber - Number of bytes to write.
@@ -121,7 +121,7 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
 }
 
 /***************************************************************************//**
- * @brief Reads data from SPI.
+ * @brief Reads data from SPI of the ADS1298 chip.
  *
  * @param data - Data represents the read buffer.
  * @param bytesNumber - Number of bytes to read.
@@ -141,23 +141,4 @@ unsigned char SPI_ADS1298_Read(unsigned char* data,
     }
     
     return bytesNumber;
-}
-
-/***************************************************************************//**
- * @brief Issues "don't care" clock cycles.
- *
- * @param bitsNumber - Number of cycles to wait.
- *
- * @return None.
-*******************************************************************************/
-void SPI_ADS1298_Wait(unsigned char bitsNumber)
-{
-	unsigned char i, j;
-    
-    for(i = 0; i < bitsNumber; i++) {
-        SPI_ADS1298_DATABUFFER = 0x00;
-        for(j = 0; j < 8; j++);
-        //SPI_ADS1298_INTERRUPT = 1;
-        SPI_ADS1298_SCLK_PIN = 0;
-    }
 }
