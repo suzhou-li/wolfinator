@@ -1,5 +1,5 @@
 /***************************************************************************//**
- *   @file   Communication.h
+ *   @file   SPI_ADS1298.h
  *   @brief  Header file of Communication Driver.
  *   @author Suzhou Li (suzhou.li@duke.edu)
 ********************************************************************************
@@ -40,8 +40,8 @@
  *   SVN Revision: 570
 *******************************************************************************/
 
-#ifndef _COMMUNICATION_H_
-#define _COMMUNICATION_H_
+#ifndef _SPI_ADS1298_H_
+#define _SPI_ADS1298_H_
 
 /******************************************************************************/
 /* INCLUDE FILES															  */
@@ -109,4 +109,4 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
 unsigned char SPI_ADS1298_Read(unsigned char* data,
 							   unsigned char bytesNumber);
 
-#endif	// _COMMUNICATION_H_
+#endif	// _SPI_ADS1298_H_
