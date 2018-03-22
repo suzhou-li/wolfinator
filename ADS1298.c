@@ -20,65 +20,15 @@ static unsigned long frameSize2;
 /* FUNCTIONS																 */
 /*****************************************************************************/
 
+/***************************************************************************//**
+ * @brief Writes a single opcode to the ADS1298.
+ * 
+ * @param writeVal - Char denoting the opcode you want to write.
+ * 
+ * @return None.
+*******************************************************************************/
 void ADS1298_WriteSingleOpCode(unsigned char writeVal) {
 	SPI_ADS1298_Write(&writeVal, 1);
-}
-
-/***************************************************************************//**
- * @brief Goes through the power-up sequencing of the device. Before device
- *        power up, all digital and analog inputs must be low. At the time of 
- *        power up, keep all these signals low until the power supplies have
- *        stabilized. Allow time for the supply voltages to reach their final
- *        to reach their final value, and then begin supplying the master 
- *        clock signal to the CLK pin. Wait for time t_POR (wait after power 
- *        up until reset, 2^18 clock cycles), then transmit a reset pulse. 
- *        Issue the reset after t_POR or after VCAP1 voltage is greater than 
- *        1.1 V depends on RC time constant). 
- * 
- * @param None.
- * 
- * @return 1 - power-up success, 0 - power-up failed
-*******************************************************************************/
-unsigned char ADS1298_PowerUp() {
-	unsigned int i = 0;
-    
-	/* Bring the PWR and RESET pin HIGH to turn on the device */
-	ADS1298_PWR_PIN = 1;
-	
-	/* Wait appropriate amount of time for the device to power up */
-	for (i = 0; i < 50000; i++) {} 
-	
-    /* Reset the device by toggling the RESET pin */
-    ADS1298_RESET_PIN = 0;
-    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
-    ADS1298_RESET_PIN = 1;
-    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
-    
-	/* Reset the device by issuing the RESET opcode */
-    SPI_ADS1298_CS1_PIN = 0;
-	SPI_ADS1298_CS2_PIN = 0;
-    ADS1298_WriteSingleOpCode(ADS1298_RESET);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
-    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
-    
-    /* Stop the read data continuously mode (SDATAC) */
-	SPI_ADS1298_CS1_PIN = 0;
-    SPI_ADS1298_CS2_PIN = 0;
-    ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
-    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
-    
-    /* Stop the data conversion (STOP) */
-    SPI_ADS1298_CS1_PIN = 0;
-	SPI_ADS1298_CS2_PIN = 0;
-    ADS1298_WriteSingleOpCode(ADS1298_STOP);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 0;
-    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
-    
-	return 1;
 }
 
 /***************************************************************************//**
@@ -145,6 +95,63 @@ void ADS1298_ReadRegisters(unsigned char device,
 		SPI_ADS1298_Read(regVals, readNum);
 		SPI_ADS1298_CS2_PIN = 1;
 	}
+}
+
+/***************************************************************************//**
+ * @brief Goes through the power-up sequencing of the device. Before device
+ *        power up, all digital and analog inputs must be low. At the time of 
+ *        power up, keep all these signals low until the power supplies have
+ *        stabilized. Allow time for the supply voltages to reach their final
+ *        to reach their final value, and then begin supplying the master 
+ *        clock signal to the CLK pin. Wait for time t_POR (wait after power 
+ *        up until reset, 2^18 clock cycles), then transmit a reset pulse. 
+ *        Issue the reset after t_POR or after VCAP1 voltage is greater than 
+ *        1.1 V depends on RC time constant). 
+ * 
+ * @param None.
+ * 
+ * @return 1 - power-up success, 0 - power-up failed
+*******************************************************************************/
+unsigned char ADS1298_PowerUp() {
+	unsigned int i = 0;
+    
+	/* Bring the PWR and RESET pin HIGH to turn on the device */
+	ADS1298_PWR_PIN = 1;
+	
+	/* Wait appropriate amount of time for the device to power up */
+	for (i = 0; i < 50000; i++) {} 
+	
+    /* Reset the device by toggling the RESET pin */
+    ADS1298_RESET_PIN = 0;
+    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
+    ADS1298_RESET_PIN = 1;
+    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
+    
+	/* Reset the device by issuing the RESET opcode */
+    SPI_ADS1298_CS1_PIN = 0;
+	SPI_ADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_RESET);
+    SPI_ADS1298_CS1_PIN = 1;
+	SPI_ADS1298_CS2_PIN = 1;
+    for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
+    
+    /* Stop the read data continuously mode (SDATAC) */
+	SPI_ADS1298_CS1_PIN = 0;
+    SPI_ADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
+    SPI_ADS1298_CS1_PIN = 1;
+	SPI_ADS1298_CS2_PIN = 1;
+    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
+    
+    /* Stop the data conversion (STOP) */
+    SPI_ADS1298_CS1_PIN = 0;
+	SPI_ADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_STOP);
+    SPI_ADS1298_CS1_PIN = 1;
+	SPI_ADS1298_CS2_PIN = 0;
+    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
+    
+	return 1;
 }
 
 /***************************************************************************//**
@@ -309,7 +316,7 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
 /***************************************************************************//**
  * @brief Initialize the ADS1298 registers. 
  * 
- * @param channels -  2 bytes (16 bits) denoting the channels we want to turn on.
+ * @param channels - 2 bytes (16 bits) denoting the channels we want to turn on.
  * 
  * @return 1 - initialization success, 0 - initialization failed
 *******************************************************************************/

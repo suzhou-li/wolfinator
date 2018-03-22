@@ -359,9 +359,6 @@
 /* Writes a single opcode to a ADS1298 chip */
 void ADS1298_WriteSingleOpCode(unsigned char writeVals);
 
-/* Powers up the ADS1298 chip */
-unsigned char ADS1298_PowerUp();
-
 /* Writes values to the registers of the ADS1298 */
 void ADS1298_WriteRegisters(unsigned char device, 
 							unsigned char address, 
@@ -374,16 +371,19 @@ void ADS1298_ReadRegisters(unsigned char device,
 						   unsigned char writeNum, 
 						   unsigned char* regVals);
 
+/* Powers up the ADS1298 chip */
+unsigned char ADS1298_PowerUp();						   
+						   
 /* Computes the frame size for each ADS1298 chip */
 void ADS1298_ComputeFrameSize();
-
-/* Sets the registers for testing */
-unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
 
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt);
 
+/* Sets the registers for testing */
+unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
+					  
 /* Initializes the ADS1298 */
 unsigned char ADS1298_Initialize(unsigned char* channels);
 
