@@ -172,8 +172,8 @@ void ADS1298_ComputeFrameSize() {
     i = 0;
     for (i = 0; i < 16; i = i + 1) {
         if ((chRegVals[i] & 0b10000000) == 0x00) { // if not powered down, increment
-			if ((i >= 0) && (i < 8))  { numCh1 = numCh1 + 1; } 
-			if ((i >= 8) && (i < 16)) { numCh2 = numCh2 + 1; }
+			if ((i >= 0) && (i < 8))  { numCh1 = i + 1; } 
+			if ((i >= 8) && (i < 16)) { numCh2 = i - 7; }
         }
     }
     
