@@ -169,7 +169,6 @@ void ADS1298_ComputeFrameSize() {
 	ADS1298_ReadRegisters(2, ADS1298_CH1SET, 8, chRegVals + 8);
     
     /* Iterate through the channel values to see which ones are powered down */
-    i = 0;
     for (i = 0; i < 16; i = i + 1) {
         if ((chRegVals[i] & 0b10000000) == 0x00) { // if not powered down, increment
 			if ((i >= 0) && (i < 8))  { numCh1 = i + 1; } 
@@ -195,61 +194,51 @@ void ADS1298_ComputeFrameSize() {
 *******************************************************************************/
 void ADS1298_ReadData(unsigned char* pDataBuffer, 
 					  unsigned long frameCnt) {
-	unsigned char i, j;
+	unsigned char i;
 	
     /* If you just want to read a single frame of data */
     if (frameCnt == 1) { 
         /* Issue the START opcode to start converting data */
         ADS1298_START_PIN = 1;
         
-        /* Iterate through the devices */
-        i = 0;
-        for (i = 0; i < 2; i = i + 1) {
+        /* If frame size for device 1 is 0, do not read from device 1 */
+        if (frameSize1 != 0) {
             
-            /* Read data from device 1 */
-            if (i == 0) {
-                /* If frame size is 0, skip the rest of the code */
-                if (frameSize1 == 0) { continue; }
-                
-                /* Bring the CS pin low */
-                SPI_ADS1298_CS1_PIN = 0;
-                
-                /* Wait for the DRDY_NOT line to go low */
-                while (SPI_ADS1298_DRDY1_NOT);
-                
-                /* Issue the RDATA opcode to read a single frame of data */
-                ADS1298_WriteSingleOpCode(ADS1298_RDATA);
+            /* Bring the CS pin low */
+            SPI_ADS1298_CS1_PIN = 0;
 
-                /* Read the data in the frame */
-                SPI_ADS1298_Read(pDataBuffer, frameSize1);
+            /* Wait for the DRDY_NOT line to go low */
+            while (SPI_ADS1298_DRDY1_NOT);
 
-                /* Issue the STOP opcode to stop converting data */
-                ADS1298_WriteSingleOpCode(ADS1298_STOP);
+            /* Issue the RDATA opcode to read a single frame of data */
+            ADS1298_WriteSingleOpCode(ADS1298_RDATA);
 
-                /* Exit from the current device by bringing CS high */
-                SPI_ADS1298_CS1_PIN = 1;
-            
-            /* Read data from device 2 */
-            } else {
-                
-                /* If frame size is 0, skip the rest of the code */
-                if (frameSize2 == 0) { continue; }
-                
-                /* Bring the CS pin low */
-                SPI_ADS1298_CS2_PIN = 0;
-                
-                /* Wait for the DRDY_NOT line to go low */
-                while (SPI_ADS1298_DRDY2_NOT);
-                
-                /* Issue the RDATA opcode to read a single frame of data */
-                ADS1298_WriteSingleOpCode(ADS1298_RDATA);
+            /* Read the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, frameSize1);
 
-                /* Read the data in the frame */
-                SPI_ADS1298_Read(pDataBuffer, frameSize2);
+            /* Issue the STOP opcode to stop converting data */
+            ADS1298_WriteSingleOpCode(ADS1298_STOP);
 
-                /* Exit from the current device by bringing CS high */
-                SPI_ADS1298_CS2_PIN = 1;
-            }
+            /* Exit from the current device by bringing CS high */
+            SPI_ADS1298_CS1_PIN = 1;
+
+        /* If frame size for device 2 is 0, do not read from device 2 */
+        } else if (frameSize2 != 0) {
+
+            /* Bring the CS pin low */
+            SPI_ADS1298_CS2_PIN = 0;
+
+            /* Wait for the DRDY_NOT line to go low */
+            while (SPI_ADS1298_DRDY2_NOT);
+
+            /* Issue the RDATA opcode to read a single frame of data */
+            ADS1298_WriteSingleOpCode(ADS1298_RDATA);
+
+            /* Read the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, frameSize2);
+
+            /* Exit from the current device by bringing CS high */
+            SPI_ADS1298_CS2_PIN = 1;
         }
         
         /* Bring the START pin low to stop the data conversions */
@@ -268,52 +257,42 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 	SPI_ADS1298_CS2_PIN = 1;
     
     /* Iterate through the specified number of frames */
-    i = 0;
 	for (i = 0; i < frameCnt; i = i + 1) {
 		
         /* Wait for the DRDY_NOT line to go low */
         while (SPI_ADS1298_DRDY1_NOT || SPI_ADS1298_DRDY2_NOT);
-            
-        /* Iterate through the devices */
-        j = 0;
-        for (j = 0; j < 2; j = j + 1) {
-            
-            /* Read data from device 1 */
-            if (j == 0) { // device 1
-                /* If frame size is 0, skip the rest of the code */
-                if (frameSize1 == 0) { continue; }
-                
-                /* Bring the CS pin low */
-                SPI_ADS1298_CS1_PIN = 0;
-                
-                /* Read all the data in the frame */
-                SPI_ADS1298_Read(pDataBuffer, 3); // read the header
-                SPI_ADS1298_Read(pDataBuffer, frameSize1 - 3); // overwrite the header
+        
+        /* If frame size for device 1 is 0, do not read from device 1 */
+        if (frameSize1 != 0) { // device 1
 
-                /* Increment the address of pDataBuffer */
-                pDataBuffer = pDataBuffer + (frameSize1 - 3);
-                
-                /* Bring the CS pin high */
-                SPI_ADS1298_CS1_PIN = 1;
-                
-            /* Read data from device 1 */
-            } else { // device 2
-                /* If frame size is 0, skip the rest of the code */
-                if (frameSize2 == 0) { continue; }
-                
-                /* Bring the CS pin low */
-                SPI_ADS1298_CS2_PIN = 0;
-                
-                /* Read all the data in the frame */
-                SPI_ADS1298_Read(pDataBuffer, 3); // read the header
-                SPI_ADS1298_Read(pDataBuffer, frameSize2 - 3); // overwrite the header
+            /* Bring the CS pin low */
+            SPI_ADS1298_CS1_PIN = 0;
 
-                /* Increment the address of pDataBuffer */
-                pDataBuffer = pDataBuffer + (frameSize2 - 3);
-                
-                /* Bring the CS pin high */
-                SPI_ADS1298_CS2_PIN = 1;
-            }
+            /* Read all the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, 3); // read the header
+            SPI_ADS1298_Read(pDataBuffer, frameSize1 - 3); // overwrite the header
+
+            /* Increment the address of pDataBuffer */
+            pDataBuffer = pDataBuffer + (frameSize1 - 3);
+
+            /* Bring the CS pin high */
+            SPI_ADS1298_CS1_PIN = 1;
+
+        /* If frame size for device 2 is 0, do not read from device 2 */
+        } else if (frameSize2 != 0) { // device 2
+
+            /* Bring the CS pin low */
+            SPI_ADS1298_CS2_PIN = 0;
+
+            /* Read all the data in the frame */
+            SPI_ADS1298_Read(pDataBuffer, 3); // read the header
+            SPI_ADS1298_Read(pDataBuffer, frameSize2 - 3); // overwrite the header
+
+            /* Increment the address of pDataBuffer */
+            pDataBuffer = pDataBuffer + (frameSize2 - 3);
+
+            /* Bring the CS pin high */
+            SPI_ADS1298_CS2_PIN = 1;
         }
 	}
     
@@ -365,11 +344,9 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
 	/* WCT2       */ writeVals[24] = 0x00;
 		
 	/* Iterate through the 2 devices */
-	i = 0;
 	for (i = 0; i < 2; i = i + 1) {
 		
 		/* Iterate through the 8 channels of one device */
-		j = 0;
 		for (j = 0; j < 8; j = j + 1) {
 			/* Define the register values for the channel settings */
 			if (((channels[i] >> (7 - j)) & 0x01) == 0x01) { // turn channel on
