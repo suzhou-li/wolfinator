@@ -55,8 +55,8 @@
 unsigned char SPI_CC110L_Initialize() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
-	SSP1CON1 = 0x00; // SSP control register 1
-	SSP1STAT = 0x00; // SSP status register
+	SSP2CON1 = 0x00; // SSP control register 1
+	SSP2STAT = 0x00; // SSP status register
 
 	/* SSP1 Status Register bits */
 
@@ -95,8 +95,6 @@ unsigned char SPI_CC110L_Initialize() {
 	SPI_CC110L_CS2_DIR = 0; // CS on CC110L is output from PIC (device 2)
     
 	/* Properly configure the other pins */
-	
-    CC110L_START_DIR = 0; // START is output
     
 	CC110L_RESET_DIR = 0; // RESET is output
 

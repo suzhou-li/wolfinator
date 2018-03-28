@@ -52,27 +52,27 @@
 /* DEFINE VARIABLES															  */
 /******************************************************************************/
 
-/* Define the SPI bits in the SSP1 Status Register */
-#define SPI_CC110L_CLKEDGE			SSP1STATbits.CKE // SPI Clock Edge Select bit
-#define SPI_CC110L_SAMPLING		SSP1STATbits.SMP // SPI Data Input Sample bit
-#define SPI_CC110L_BUFFERFULL		SSP1STATbits.BF // SPI Buffer Full Status bit
+/* Define the SPI bits in the SSP2 Status Register */
+#define SPI_CC110L_CLKEDGE			SSP2STATbits.CKE // SPI Clock Edge Select bit
+#define SPI_CC110L_SAMPLING         SSP2STATbits.SMP // SPI Data Input Sample bit
+#define SPI_CC110L_BUFFERFULL		SSP2STATbits.BF // SPI Buffer Full Status bit
 
-/* Define the SPI bits in SSP1 Control Register 1 */
-#define SPI_CC110L_ENABLE  		SSP1CON1bits.SSPEN
-#define SPI_CC110L_CLKPOL			SSP1CON1bits.CKP
-#define SPI_CC110L_FOSC 			SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
+/* Define the SPI bits in SSP2 Control Register 1 */
+#define SPI_CC110L_ENABLE           SSP2CON1bits.SSPEN
+#define SPI_CC110L_CLKPOL			SSP2CON1bits.CKP
+#define SPI_CC110L_FOSC 			SSP2CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
 
 /* Define the SPI bits for the CC110L data buffer */
-#define SPI_CC110L_DATABUFFER		SSP1BUF
+#define SPI_CC110L_DATABUFFER		SSP2BUF
 
-/* Define the bit for the SSP1 Interrupt Flag */
-#define SPI_CC110L_INTERRUPT       PIR1bits.SSP1IF
+/* Define the bit for the SSP2 Interrupt Flag */
+#define SPI_CC110L_INTERRUPT       PIR3bits.SSP2IF
 
 /* Define the pins of the SPI for the CC110L in the PIC */
-#define SPI_CC110L_SCLK_DIR		TRISCbits.RC3       // SCLK on RC3 direction
-#define SPI_CC110L_SCLK_PIN        LATCbits.LATC3      // PIC SCLK pin
+#define SPI_CC110L_SCLK_DIR         TRISCbits.RC3       // SCLK on RC3 direction
+#define SPI_CC110L_SCLK_PIN         LATCbits.LATC3      // PIC SCLK pin
 
-#define SPI_CC110L_DOUT_DIR		TRISCbits.RC4       // ADS DOUT to RC4 direction
+#define SPI_CC110L_DOUT_DIR         TRISCbits.RC4       // ADS DOUT to RC4 direction
 #define SPI_CC110L_DOUT_ANSEL		ANSELCbits.ANSC4    // PIC DIN pin analog select bit
 
 #define SPI_CC110L_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
@@ -92,11 +92,8 @@
 #define SPI_CC110L_CS2_PIN			LATAbits.LATA3      // PIC CS (device 2) pin (output) 
 
 /* Define the other pins for the CC110L */
-#define CC110L_START_DIR		TRISAbits.RA4       // RESET pin direction
-#define CC110L_START_PIN   	LATAbits.LATA4      // RESET pin (output)
-
 #define CC110L_RESET_DIR		TRISAbits.RA5       // RESET pin direction
-#define CC110L_RESET_PIN   	LATAbits.LATA5      // RESET pin (output)
+#define CC110L_RESET_PIN        LATAbits.LATA5      // RESET pin (output)
 
 #define CC110L_PWR_DIR			TRISEbits.RE0		// PWDN pin direction
 #define CC110L_PWR_PIN			LATEbits.LATE0		// PWDN pin (output)
