@@ -208,7 +208,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
             SPI_ADS1298_CS1_PIN = 0;
 
             /* Wait for the DRDY_NOT line to go low */
-            while (SPI_ADS1298_DRDY1_NOT);
+            while (ADS1298_DRDY1_NOT);
 
             /* Issue the RDATA opcode to read a single frame of data */
             ADS1298_WriteSingleOpCode(ADS1298_RDATA);
@@ -229,7 +229,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
             SPI_ADS1298_CS2_PIN = 0;
 
             /* Wait for the DRDY_NOT line to go low */
-            while (SPI_ADS1298_DRDY2_NOT);
+            while (ADS1298_DRDY2_NOT);
 
             /* Issue the RDATA opcode to read a single frame of data */
             ADS1298_WriteSingleOpCode(ADS1298_RDATA);
@@ -260,7 +260,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 	for (i = 0; i < frameCnt; i = i + 1) {
 		
         /* Wait for the DRDY_NOT line to go low */
-        while (SPI_ADS1298_DRDY1_NOT || SPI_ADS1298_DRDY2_NOT);
+        while (ADS1298_DRDY1_NOT || ADS1298_DRDY2_NOT);
         
         /* If frame size for device 1 is 0, do not read from device 1 */
         if (frameSize1 != 0) { // device 1

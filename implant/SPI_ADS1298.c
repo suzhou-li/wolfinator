@@ -84,11 +84,11 @@ unsigned char SPI_ADS1298_Initialize() {
 
 	SPI_ADS1298_DIN_DIR = 0; // DIN on ADS1298 is output from PIC
 	
-    SPI_ADS1298_DRDY1_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 1)
-	SPI_ADS1298_DRDY1_ANSEL = 0;	// clear analog select bit for DRDY (device 1)
+    ADS1298_DRDY1_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 1)
+	ADS1298_DRDY1_ANSEL = 0;	// clear analog select bit for DRDY (device 1)
 	
-    SPI_ADS1298_DRDY2_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 2)
-	SPI_ADS1298_DRDY2_ANSEL = 0;	// clear analog select bit for DRDY (device 2)
+    ADS1298_DRDY2_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 2)
+	ADS1298_DRDY2_ANSEL = 0;	// clear analog select bit for DRDY (device 2)
     
 	SPI_ADS1298_CS1_DIR = 0; // CS on ADS1298 is output from PIC (device 1)
     
