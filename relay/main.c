@@ -2,7 +2,7 @@
 /* CONFIGURATION															  */
 /******************************************************************************/
 #pragma config WDTEN = OFF
-#pragma config FOSC =  INTIO67
+#pragma config FOSC  = INTIO67
 #pragma config XINST = OFF
 
 /******************************************************************************/

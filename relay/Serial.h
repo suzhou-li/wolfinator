@@ -28,12 +28,12 @@
 #define	Serial_BAUD_AUTO		BAUDCON1bits.ABDEN // Auto-Baud Detect Enable bit
 
 /* Define the EUSART bits on the PIR (Peripheral Interrupt Request) Register */
-#define Serial_INT_RX		PIR1bits.RC1IF; // EUSART1 Receive Interrupt Flag bit
-#define Serial_INT_TX		PIR1bits.TX1IF; // EUSART1 Transmit Interrupt Flag bit
+#define Serial_INT_RX           PIR1bits.RC1IF; // EUSART1 Receive Interrupt Flag bit
+#define Serial_INT_TX           PIR1bits.TX1IF; // EUSART1 Transmit Interrupt Flag bit
 
 /* Define the EUSART bits on the PIE (Peripheral Interrupt Enable) Register */
-#define Serial_INTEN_RX		PIE1bits.RC1IE; // EUSART1 Receive Interrupt Enable bit
-#define Serial_INTEN_TX		PIE1bits.TX1IE; // EUSART1 Transmit Interrupt Enable bit
+#define Serial_INTEN_RX         PIE1bits.RC1IE; // EUSART1 Receive Interrupt Enable bit
+#define Serial_INTEN_TX         PIE1bits.TX1IE; // EUSART1 Transmit Interrupt Enable bit
 
 /******************************************************************************/
 /* FUNCTION PROTOTYPES														  */
@@ -46,13 +46,13 @@ unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max);
 
 void Serial_RX_StoreData(unsigned char data);
 
-bool Serial_RX_isDataAvailable();
+unsigned char Serial_RX_isDataAvailable();
 
 void Serial_RX_Clear();
 
 void Serial_TX_StoreData(unsigned char data);
 
-bool Serial_TX_isDataAvailable();
+unsigned char Serial_TX_isDataAvailable();
 
 void Serial_TX_Clear();
 

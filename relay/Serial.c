@@ -24,7 +24,7 @@ unsigned char TX_HEAD, TX_TAIL, RX_HEAD, RX_TAIL;
 unsigned char Serial_Initialize() {
 	/* Set the bits for the TxSTA1 register */
 	Serial_TX_ENABLE = 1;
-	Serial_TX_Mode = 0;
+	Serial_TX_MODE = 0;
 	Serial_TX_HIGHRATE = 1;
 	
 	/* Set the bits for the RCSTA1 register */
@@ -39,14 +39,14 @@ unsigned char Serial_Initialize() {
 	Serial_BAUD_AUTO = 0;
 	
 	/* Enable interrupts on the PIE1 register */
-	SERIAL_INTEN_RX = 1;
-	SERIAL_INTEN_TX = 1;
+    Serial_INTEN_RX = 1;
+    Serial_INTEN_TX = 1;
 	
 	/* Clear the interrupt flags on the PIR1 register */
-	SERIAL_INT_RX = 0;
-	SERIAL_INT_TX = 0;
-	
-	return 1;
+    Serial_INT_RX = 0;
+    Serial_INT_TX = 0;
+    
+    return 1;
 }
 
 /***************************************************************************//**
@@ -85,7 +85,7 @@ void Serial_RX_StoreData(unsigned char data) {
  * 
  * @return 1 - data is available to be read, 0 - data is not available.
 *******************************************************************************/
-bool Serial_RX_isDataAvailable() {
+unsigned char Serial_RX_isDataAvailable() {
 	return (RX_HEAD != RX_TAIL);
 }
 
@@ -123,7 +123,7 @@ void Serial_TX_StoreData(unsigned char data) {
  * 
  * @return 1 - data is available to be transmitted, 0 - data is not available..
 *******************************************************************************/
-bool Serial_TX_isDataAvailable() {
+unsigned char Serial_TX_isDataAvailable() {
 	if (TX_HEAD != TX_TAIL) { PIE1bits.TXIE = 1; }
 	else { PIE1bits.TXIE = 0; }
 	
