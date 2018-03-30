@@ -54,17 +54,29 @@ unsigned char Serial_Initialize();
 
 unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max);
 
-void Serial_RC_StoreData(unsigned char data);
+/******************************************************************************/
+/* Receive Functions														  */
+/******************************************************************************/
+
+void Serial_RC_StoreData();
 
 unsigned char Serial_RC_isDataAvailable();
 
 void Serial_RC_Clear();
+
+/******************************************************************************/
+/* Transmit Functions														  */
+/******************************************************************************/
 
 void Serial_TX_StoreData(unsigned char data);
 
 unsigned char Serial_TX_isDataAvailable();
 
 void Serial_TX_Clear();
+
+/******************************************************************************/
+/* General Functions														  */
+/******************************************************************************/
 
 unsigned char Serial_RetrieveByte();
 

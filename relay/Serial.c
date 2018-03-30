@@ -122,13 +122,11 @@ void Serial_RC_Clear() {
  * 
  * @return None.
 *******************************************************************************/
-void Serial_TX_StoreData(unsigned char data) {
-	TX_BUFFER[TX_HEAD] = data;
+void Serial_TX_StoreData() {
+	TX_BUFFER[TX_HEAD] = Serial_RC_REGISTER;
 	TX_HEAD = Serial_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
 	
 	if (TX_HEAD == TX_TAIL) { TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
-	
-	PIE1bits.TXIE = 1;
 }
 
 /***************************************************************************//**
@@ -220,5 +218,7 @@ void Serial_ClearAll() {
  * @return None.
 *******************************************************************************/
 void Serial_ISR() {
-	
+	if (Serial_INT_RC && Serial_INTEN_RC) {
+		Serial_RC_StoreData();
+	}
 }
