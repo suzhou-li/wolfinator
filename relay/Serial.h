@@ -45,6 +45,20 @@
 #define Serial_INTEN_RC         PIE1bits.RC1IE // EUSART1 Receive Interrupt Enable bit
 #define Serial_INTEN_TX         PIE1bits.TX1IE // EUSART1 Transmit Interrupt Enable bit
 
+/* Define the EUSART bits on the IPR1 (Peripheral Interrupt Priority) Register */
+#define Serial_INTPRIORITY_RC   IPR1bits.RC1IP
+#define Serial_INTPRIORITY_TX   IPR1bits.TX1IP
+
+/* Define the RC pins on the EUSART interface */
+#define Serial_RC_PIN           PORTCbits.RC7
+#define Serial_RC_DIR           TRISCbits.RC7
+#define Serial_RC_ANSEL         ANSELCbits.ANSC7
+
+/* Define the TX pins on the EUSART interface */
+#define Serial_TX_PIN           LATCbits.LATC6
+#define Serial_TX_DIR           TRISCbits.RC6
+#define Serial_TX_ANSEL         ANSELCbits.ANSC6
+
 /******************************************************************************/
 /* FUNCTION PROTOTYPES														  */
 /******************************************************************************/
@@ -68,7 +82,7 @@ void Serial_RC_Clear();
 /* Transmit Functions														  */
 /******************************************************************************/
 
-void Serial_TX_StoreData(unsigned char data);
+void Serial_TX_StoreData();
 
 unsigned char Serial_TX_isDataAvailable();
 

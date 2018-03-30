@@ -29,6 +29,14 @@ unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
 unsigned char Serial_Initialize() {
     unsigned char i;
     
+    /* Set the pins for the RC pin */
+    Serial_RC_DIR = 1;
+    Serial_RC_ANSEL = 0;
+    
+    /* Set the pins for the TX pin */
+    Serial_TX_DIR = 0;
+    Serial_TX_ANSEL = 0;
+    
     /* Set the bits for controlling the baud rate */
     Serial_BAUDRATE_HB = (0x8A << 8); // value needs to be 
     Serial_BAUDRATE_LB = (0x8A << 0);
@@ -49,6 +57,10 @@ unsigned char Serial_Initialize() {
 	Serial_BAUD_BITSIZE = 1;
 	Serial_BAUD_AUTO = 0;
 	
+    /* Activate the interrupts */
+    RCONbits.IPEN   = 1; // Enable priority levels on interrupts
+    INTCONbits.GIEH = 1; // Enable all high priority interrupts
+    
 	/* Enable interrupts on the PIE1 register */
     Serial_INTEN_RC = 1;
     Serial_INTEN_TX = 1;
@@ -56,6 +68,10 @@ unsigned char Serial_Initialize() {
 	/* Clear the interrupt flags on the PIR1 register */
     Serial_INT_RC = 0;
     Serial_INT_TX = 0;
+    
+    /* Set the interrupt priority on the IPR1 register */
+    Serial_INTPRIORITY_RC = 1;
+    Serial_INTPRIORITY_TX = 1;
     
     /* Initialize the RC and TX buffers */
     RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
@@ -190,7 +206,7 @@ unsigned char Serial_SendData(unsigned char* data) {
 	unsigned char i = 0;
 	
 	while (data[i] != 0x00) {
-		Serial_TX_StoreData(data[i]);
+		Serial_TX_StoreData();
 		i = i + 1;
 	}
 	
@@ -219,6 +235,6 @@ void Serial_ClearAll() {
 *******************************************************************************/
 void Serial_ISR() {
 	if (Serial_INT_RC && Serial_INTEN_RC) {
-		Serial_RC_StoreData();
+		
 	}
 }
