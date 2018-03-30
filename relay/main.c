@@ -16,7 +16,7 @@
 /******************************************************************************/
 #pragma interrupt interruptFunction
 void interruptFunction() {
-	LATCbits.LATC0 = !LATCbits.LATC0;
+	LATBbits.LATB0 = !LATBbits.LATB0;
 }
 
 /******************************************************************************/
@@ -29,8 +29,14 @@ void main() {
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
 	/* Initialize the PIC pin for output */
-	TRISCbits.RC0 = 0; // output at pin 0
-	LATCbits.LATC0 = 0; // initialize the pin LOW
+	TRISBbits.RB0 = 0; // output at pin 0
+	TRISBbits.RB1 = 0; 
+	TRISBbits.RB2 = 0; 
+	TRISBbits.RB3 = 0; 
+    LATBbits.LATB0 = 0; // initialize the pin LOW
+    LATBbits.LATB1 = 1;
+    LATBbits.LATB2 = 1;
+    LATBbits.LATB3 = 1;
 	
 	/* Initialize the EUSART communication */
 	status = Serial_Initialize();
