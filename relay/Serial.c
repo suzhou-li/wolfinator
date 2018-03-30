@@ -4,11 +4,16 @@
 #include "Serial.h"
 
 /******************************************************************************/
-/* CONSTANTS																  */
+/* DEFINITIONS  															  */
 /******************************************************************************/
-unsigned char MAX_TX_SIZE = 30, MAX_RX_SIZE = 30;
-unsigned char TX_BUFFER[MAX_TX_SIZE], RX_BUFFER[MAX_RX_SIZE];
-unsigned char TX_HEAD, TX_TAIL, RX_HEAD, RX_TAIL;
+#define MAX_TX_SIZE     30
+#define MAX_RC_SIZE     30
+
+/******************************************************************************/
+/* GLOBAL VARIABLES															  */
+/******************************************************************************/
+unsigned char TX_BUFFER[MAX_TX_SIZE], RC_BUFFER[MAX_RC_SIZE];
+unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
 
 /******************************************************************************/
 /* FUNCTIONS																  */
@@ -22,29 +27,39 @@ unsigned char TX_HEAD, TX_TAIL, RX_HEAD, RX_TAIL;
  * @return None.
 *******************************************************************************/
 unsigned char Serial_Initialize() {
+    unsigned char i;
+    
+    /* Set the bits for controlling the baud rate */
+    Serial_BAUDRATE_HB = (0x8A << 8); // value needs to be 
+    Serial_BAUDRATE_LB = (0x8A << 0);
+    
 	/* Set the bits for the TxSTA1 register */
 	Serial_TX_ENABLE = 1;
 	Serial_TX_MODE = 0;
 	Serial_TX_HIGHRATE = 1;
 	
 	/* Set the bits for the RCSTA1 register */
-	Serial_RX_SERIAL = 1;
-	Serial_RX_SINGLE = 0;
-	Serial_RX_CONT = 1;
+	Serial_RC_SERIAL = 1;
+	Serial_RC_SINGLE = 0;
+	Serial_RC_CONT = 1;
 	
 	/* Set the bits for the BAUDCON register for the baud rate generator */
-	Serial_BAUD_RXPOL = 0;
+	Serial_BAUD_RCPOL = 0;
 	Serial_BAUD_TXPOL = 0;
 	Serial_BAUD_BITSIZE = 1;
 	Serial_BAUD_AUTO = 0;
 	
 	/* Enable interrupts on the PIE1 register */
-    Serial_INTEN_RX = 1;
+    Serial_INTEN_RC = 1;
     Serial_INTEN_TX = 1;
 	
 	/* Clear the interrupt flags on the PIR1 register */
-    Serial_INT_RX = 0;
+    Serial_INT_RC = 0;
     Serial_INT_TX = 0;
+    
+    /* Initialize the RC and TX buffers */
+    RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
+    for (i = 0; i < MAX_RC_SIZE; i = i + 1) { RC_BUFFER[i] = 0; }
     
     return 1;
 }
@@ -71,11 +86,11 @@ unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max) {
  * 
  * @return None.
 *******************************************************************************/
-void Serial_RX_StoreData(unsigned char data) {
-	RX_BUFFER[RX_HEAD] = data;
-	RX_HEAD = Serial_IncrementIndex(RX_HEAD, MAX_RX_SIZE);
+void Serial_RC_StoreData(unsigned char data) {
+	RC_BUFFER[RC_HEAD] = data;
+	RC_HEAD = Serial_IncrementIndex(RC_HEAD, MAX_RC_SIZE);
 	
-	if (RX_HEAD == RX_TAIL) { RX_TAIL = Serial_IncrementIndex(RX_TAIL, MAX_RX_SIZE);
+	if (RC_HEAD == RC_TAIL) { RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE); }
 }
 
 /***************************************************************************//**
@@ -85,19 +100,19 @@ void Serial_RX_StoreData(unsigned char data) {
  * 
  * @return 1 - data is available to be read, 0 - data is not available.
 *******************************************************************************/
-unsigned char Serial_RX_isDataAvailable() {
-	return (RX_HEAD != RX_TAIL);
+unsigned char Serial_RC_isDataAvailable() {
+	return (RC_HEAD != RC_TAIL);
 }
 
 /***************************************************************************//**
- * @brief Resets the RX buffer.
+ * @brief Resets the RC buffer.
  *
  * @param None.
  * 
  * @return None.
 *******************************************************************************/
-void Serial_RX_Clear() {
-	RX_HEAD = RX_TAIL = 0;
+void Serial_RC_Clear() {
+	RC_HEAD = RC_TAIL = 0;
 }
 
 /***************************************************************************//**
@@ -111,7 +126,7 @@ void Serial_TX_StoreData(unsigned char data) {
 	TX_BUFFER[TX_HEAD] = data;
 	TX_HEAD = Serial_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
 	
-	if (TX_HEAD == TX_TAIL) { TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_RX_SIZE); }
+	if (TX_HEAD == TX_TAIL) { TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
 	
 	PIE1bits.TXIE = 1;
 }
@@ -142,15 +157,15 @@ void Serial_TX_Clear() {
 }
 
 /***************************************************************************//**
- * @brief Retrieves a received value from the RX buffer
+ * @brief Retrieves a received value from the RC buffer
  *
  * @param None.
  * 
- * @return Oldest character in the RX buffer.
+ * @return Oldest character in the RC buffer.
 *******************************************************************************/
 unsigned char Serial_RetrieveByte() {
-	unsigned char data = RX_BUFFER[RX_TAIL];
-	RX_TAIL = Serial_IncrementIndex(RX_TAIL, MAX_RX_SIZE);
+	unsigned char data = RC_BUFFER[RC_TAIL];
+	RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
 	return data;
 }
 
@@ -162,7 +177,7 @@ unsigned char Serial_RetrieveByte() {
  * @return None.
 *******************************************************************************/
 void Serial_SendByte() {
-	TXREG = TX_BUFFER[TX_TAIL];
+	Serial_TX_REGISTER = TX_BUFFER[TX_TAIL];
 	TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
 }
 
@@ -173,10 +188,10 @@ void Serial_SendByte() {
  * 
  * @return 1 - transfer of data successful, 0 - transfer of data unsuccessful.
 *******************************************************************************/
-unsigned char Serial_SendData(unsigned char data[32]) {
+unsigned char Serial_SendData(unsigned char* data) {
 	unsigned char i = 0;
 	
-	while (data[i] != NULL) {
+	while (data[i] != 0x00) {
 		Serial_TX_StoreData(data[i]);
 		i = i + 1;
 	}
@@ -191,9 +206,9 @@ unsigned char Serial_SendData(unsigned char data[32]) {
  * 
  * @return None.
 *******************************************************************************/
-void Serial_ClearAll() [
+void Serial_ClearAll() {
 	Serial_TX_Clear();
-	Serial_RX_Clear();
+	Serial_RC_Clear();
 }
 
 
