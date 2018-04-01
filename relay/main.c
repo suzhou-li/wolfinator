@@ -23,7 +23,7 @@ void interruptFunction() {
 /* MAIN FUNCTION															  */
 /******************************************************************************/
 void main() {
-	unsigned char status;
+	unsigned char status, i;
 	
 	/* Set the PIC clock frequency */
     OSCCON = 0b01110110; // set clock to 16 MHz
@@ -43,7 +43,12 @@ void main() {
 	
 	/* Run code indefinitely */
 	if (status) {
-		while (1);
+		while (1) {
+			Serial_TX_WriteBufferMultiple({0x02, 0x04, 0x08, 0x09});
+			for (i = 0; i < 4; i = i + 1) {
+				Serial_TX_SendByte();
+			}
+		}
 	}
 }
 

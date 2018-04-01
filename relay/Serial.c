@@ -19,6 +19,10 @@ unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
 /* FUNCTIONS																  */
 /******************************************************************************/
 
+/******************************************************************************/
+/* General Functions Part 1													  */
+/******************************************************************************/
+
 /***************************************************************************//**
  * @brief Initializes the EUSART communication. 
  *
@@ -58,8 +62,8 @@ unsigned char Serial_Initialize() {
 	Serial_BAUD_AUTO = 0;
 	
     /* Activate the interrupts */
-    RCONbits.IPEN   = 1; // Enable priority levels on interrupts
-    INTCONbits.GIEH = 1; // Enable all high priority interrupts
+    Serial_INT_ENABLE = 1; // Enable priority levels on interrupts
+    Serial_INT_PRIOROTY = 1; // Enable all high priority interrupts
     
 	/* Enable interrupts on the PIE1 register */
     Serial_INTEN_RC = 1;
@@ -91,8 +95,12 @@ unsigned char Serial_Initialize() {
 *******************************************************************************/
 unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max) {
 	if (++idx == max) { idx = 0; } // increment index; and if buffer reached, start from beginning
-	return idx;
+	return idx; // return the index
 }
+
+/******************************************************************************/
+/* Receive Functions														  */
+/******************************************************************************/
 
 /***************************************************************************//**
  * @brief Stores the new character that is received on the serial communication
@@ -102,11 +110,55 @@ unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max) {
  * 
  * @return None.
 *******************************************************************************/
-void Serial_RC_StoreData(unsigned char data) {
+void Serial_RC_WriteBuffer(unsigned char data) {
+	/* Write the data to the current head of the buffer */
 	RC_BUFFER[RC_HEAD] = data;
+	
+	/* Increment the head of the buffer */
 	RC_HEAD = Serial_IncrementIndex(RC_HEAD, MAX_RC_SIZE);
 	
+	/* If you have reached the tail, increment the tail of the buffer */
 	if (RC_HEAD == RC_TAIL) { RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE); }
+}
+
+/***************************************************************************//**
+ * @brief Retrieves a received value from the RC buffer
+ *
+ * @param None.
+ * 
+ * @return Oldest character in the RC buffer.
+*******************************************************************************/
+unsigned char Serial_RC_ReadBuffer() {
+	unsigned char data;
+	
+	/* Temporarily disable the interrupts */
+	Serial_INT_ENABLE = 0;
+	
+	/* Read the data from the end of the buffer */
+	data = RC_BUFFER[RC_TAIL];
+	
+	/* Increment the tail of the buffer */
+	RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
+	
+	/* Re-enable the interrupt */
+	Serial_INT_ENABLE = 1;
+	
+	return data;
+}
+
+/***************************************************************************//**
+ * @brief Reads a byte off the RC register.
+ *
+ * @param None.
+ * 
+ * @return Oldest character in the RC buffer.
+*******************************************************************************/
+void Serial_RC_ReadByte() {
+	/* Read the data from the RC register */
+	Serial_RC_WriteBuffer(Serial_RC_REGISTER);
+	
+	/* Clear the interrupt flag */
+	Serial_INT_RC = 0;
 }
 
 /***************************************************************************//**
@@ -128,8 +180,12 @@ unsigned char Serial_RC_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void Serial_RC_Clear() {
-	RC_HEAD = RC_TAIL = 0;
+	RC_HEAD = RC_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
+
+/******************************************************************************/
+/* Transmit Functions														  */
+/******************************************************************************/
 
 /***************************************************************************//**
  * @brief Stores a character that needs to be transmitted on the TX buffer.
@@ -138,11 +194,62 @@ void Serial_RC_Clear() {
  * 
  * @return None.
 *******************************************************************************/
-void Serial_TX_StoreData() {
-	TX_BUFFER[TX_HEAD] = Serial_RC_REGISTER;
+void Serial_TX_WriteBuffer(unsigned char data) {
+	/* Temporarily disable interrupts */
+	Serial_INT_ENABLE = 0;
+	
+	/* Write the data to the current head of the buffer */
+	TX_BUFFER[TX_HEAD] = data;
+	
+	/* Increment the head of the buffer */
 	TX_HEAD = Serial_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
 	
+	/* If you have reached the tail, increment the tail of the buffer */
 	if (TX_HEAD == TX_TAIL) { TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
+	
+	/* Re-enable the interrupts */
+	Serial_INTEN_TX = 1;
+	Serial_INT_ENABLE = 1;
+}
+
+/***************************************************************************//**
+ * @brief Puts multiple bytes of data into the transmit buffer.
+ *
+ * @param None.
+ * 
+ * @return 1 - transfer of data successful, 0 - transfer of data unsuccessful.
+*******************************************************************************/
+void Serial_TX_WriteBufferMultiple(unsigned char* data) {
+	/* Iterate through the data */
+	while (*data != 0x00) { // while there is still data in the vector
+		
+		/* Write the data to the buffer */
+		Serial_TX_WriteBuffer(*data);
+		
+		/* Increment the data address */
+		data = data + 1;
+	}
+}
+
+/***************************************************************************//**
+ * @brief Outputs a signal byte to the Serial communication line.
+ *
+ * @param None.
+ * 
+ * @return None.
+*******************************************************************************/
+void Serial_TX_SendByte() {
+	/* Temporarily disable interrupts */
+	Serial_INT_ENABLE = 0;
+	
+	/* Write the data at the end of the transmit buffer to the transmit register */
+	Serial_TX_REGISTER = TX_BUFFER[TX_TAIL];
+	
+	/* Increment the tail of the buffer */
+	TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
+	
+	/* Re-enable interrupts */
+	Serial_INT_ENABLE = 1;
 }
 
 /***************************************************************************//**
@@ -153,10 +260,13 @@ void Serial_TX_StoreData() {
  * @return 1 - data is available to be transmitted, 0 - data is not available..
 *******************************************************************************/
 unsigned char Serial_TX_isDataAvailable() {
-	if (TX_HEAD != TX_TAIL) { PIE1bits.TXIE = 1; }
-	else { PIE1bits.TXIE = 0; }
+	/* If you are not at the end of the buffer, enable the TX interrupts */
+	if (TX_HEAD != TX_TAIL) { Serial_INTEN_TX = 1; }
 	
-	return PIE1bits.TXIE;
+	/* If you are at the end of the buffer, disable the TX interrupt */
+	else { Serial_INTEN_TX = 0; }
+	
+	return Serial_INTEN_TX;
 }
 
 /***************************************************************************//**
@@ -167,51 +277,12 @@ unsigned char Serial_TX_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void Serial_TX_Clear() {
-	TX_HEAD = TX_TAIL = 0;
+	TX_HEAD = TX_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
 
-/***************************************************************************//**
- * @brief Retrieves a received value from the RC buffer
- *
- * @param None.
- * 
- * @return Oldest character in the RC buffer.
-*******************************************************************************/
-unsigned char Serial_RetrieveByte() {
-	unsigned char data = RC_BUFFER[RC_TAIL];
-	RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
-	return data;
-}
-
-/***************************************************************************//**
- * @brief Outputs a signal byte to the Serial communication line.
- *
- * @param None.
- * 
- * @return None.
-*******************************************************************************/
-void Serial_SendByte() {
-	Serial_TX_REGISTER = TX_BUFFER[TX_TAIL];
-	TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
-}
-
-/***************************************************************************//**
- * @brief Puts multiple bytes of data into the transmit buffer.
- *
- * @param None.
- * 
- * @return 1 - transfer of data successful, 0 - transfer of data unsuccessful.
-*******************************************************************************/
-unsigned char Serial_SendData(unsigned char* data) {
-	unsigned char i = 0;
-	
-	while (data[i] != 0x00) {
-		Serial_TX_StoreData();
-		i = i + 1;
-	}
-	
-	return 1;
-}
+/******************************************************************************/
+/* General Functions Part 2													  */
+/******************************************************************************/
 
 /***************************************************************************//**
  * @brief Clears both the receive and transmit buffers.
@@ -225,7 +296,6 @@ void Serial_ClearAll() {
 	Serial_RC_Clear();
 }
 
-
 /***************************************************************************//**
  * @brief Interrupt service routing for EUSART communication.
  *
@@ -234,7 +304,20 @@ void Serial_ClearAll() {
  * @return None.
 *******************************************************************************/
 void Serial_ISR() {
+	unsigned char isData;
+	
 	if (Serial_INT_RC && Serial_INTEN_RC) {
-		
+		Serial_RC_ReadByte();
+		if (Serial_INT_RC) { Serial_RC_ReadByte(); }
+	}
+	
+	if (Serial_INT_TX && Serial_INTEN_TX) {
+		isData = Serial_TX_isDataAvailable();
+		if (isData) {
+			Serial_TX_SendByte();
+			if (Serial_INT_TX) { Serial_TX_SendByte(); }
+		} else {
+			Serial_INTEN_TX = 0;
+		}
 	}
 }
