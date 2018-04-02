@@ -18,7 +18,6 @@
 
 /* Define the EUSART bits on the RCSTA1 (Receive Status and Control) Register */
 #define Serial_RC_SERIAL			RCSTA1bits.SPEN // Serial Port Enable bit
-#define Serial_RC_SINGLE			RCSTA1bits.SREN // Single Receive Enable bit
 #define Serial_RC_CONT				RCSTA1bits.CREN // Continuous Receive Enable bit
 
 /* Define the EUSART bits on the BAUDCON1 (Baud Rate Control) Register */
@@ -38,8 +37,8 @@
 #define Serial_BAUDRATE_LB      	SPBRG   // Low byte
 
 /* Define the EUSART bits on the PIR (Peripheral Interrupt Request) Register */
-#define Serial_INT_RC           	PIR1bits.RC1IF // EUSART1 Receive Interrupt Flag bit
-#define Serial_INT_TX           	PIR1bits.TX1IF // EUSART1 Transmit Interrupt Flag bit
+#define Serial_RC_FULL           	PIR1bits.RC1IF // EUSART1 Receive Interrupt Flag bit
+#define Serial_TX_EMPTY           	PIR1bits.TX1IF // EUSART1 Transmit Interrupt Flag bit
 
 /* Define the EUSART bits on the PIE (Peripheral Interrupt Enable) Register */
 #define Serial_INTEN_RC         	PIE1bits.RC1IE // EUSART1 Receive Interrupt Enable bit
@@ -50,8 +49,9 @@
 #define Serial_INTPRIORITY_TX   	IPR1bits.TX1IP
 
 /* Define the interrupt bits */
-#define Serial_INT_ENABLE			RCONbits.IPEN
-#define Serial_INT_PRIOROTY			INTCONbits.GIEH
+#define Serial_INT_PRIORITY			RCONbits.IPEN
+#define Serial_INT_GLOBAL			INTCONbits.GIEH
+#define Serial_INT_PERIPHERAL       INTCONbits.PEIE
 
 /* Define the RC pins on the EUSART interface */
 #define Serial_RC_PIN				PORTCbits.RC7
