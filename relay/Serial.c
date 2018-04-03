@@ -42,8 +42,8 @@ unsigned char Serial_Initialize() {
     Serial_TX_ANSEL = 0;
     
     /* Set the bits for controlling the baud rate */
-    Serial_BAUDRATE_HB = (34ul << 8); // value needs to be 34
-    Serial_BAUDRATE_LB = (34ul << 0);
+    Serial_BAUDRATE_HB = (416ul >> 8); // value needs to be 34
+    Serial_BAUDRATE_LB = (416ul >> 0);
     
 	/* Set the bits for the TxSTA1 register */
 	Serial_TX_ENABLE   = 1; // Transmit enabled
@@ -67,7 +67,7 @@ unsigned char Serial_Initialize() {
     
 	/* Clear the interrupt flags on the PIR1 register */
     Serial_RC_FULL  = 0; // EUSART1 Receive Interrupt Flag bit
-    Serial_TX_EMPTY = 0; // EUSART1 Transmit Interrupt Flag bit
+    Serial_TX_EMPTY = 1; // EUSART1 Transmit Interrupt Flag bit
     
     /* Set the interrupt priority on the IPR1 register */
     Serial_INTPRIORITY_RC = 0; // High priority

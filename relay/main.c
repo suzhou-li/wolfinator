@@ -19,6 +19,7 @@ void interruptFunction() {
 	//LATBbits.LATB0 = !LATBbits.LATB0;
     //Serial_ISR();
     Serial_TX_REGISTER = 'b';
+    Serial_TX_EMPTY = 0;
 }
 
 /******************************************************************************/
