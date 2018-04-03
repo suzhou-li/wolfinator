@@ -14,6 +14,13 @@
 /******************************************************************************/
 /* INTERRUPTS																  */
 /******************************************************************************/
+#pragma code InterruptVectorHigh = 0x08
+void InterruptVectorHigh() {
+	_asm
+		goto interruptFunction
+	_endasm
+}
+
 #pragma interrupt interruptFunction
 void interruptFunction() {
 	//LATBbits.LATB0 = !LATBbits.LATB0;
