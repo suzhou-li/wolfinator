@@ -1,9 +1,15 @@
 /******************************************************************************/
-/* CONFIGURATION															  */
+/* COMBILER INFORMATION														  */
 /******************************************************************************/
+
+/* Configuration settings */
 #pragma config WDTEN = OFF
 #pragma config FOSC  = INTIO67
 #pragma config XINST = OFF
+
+/* Configure the interrupt settings */
+#pragma interrupt InterruptHigh
+#pragma code InterruptVectorHigh = 0x08
 
 /******************************************************************************/
 /* INCLUDE FILES															  */
@@ -14,19 +20,15 @@
 /******************************************************************************/
 /* INTERRUPTS																  */
 /******************************************************************************/
-#pragma code InterruptVectorHigh = 0x08
-void InterruptVectorHigh() {
+void InterruptVectorHigh() { 
 	_asm
-		goto interruptFunction
+		goto InterruptHigh
 	_endasm
 }
 
-#pragma interrupt interruptFunction
-void interruptFunction() {
-	//LATBbits.LATB0 = !LATBbits.LATB0;
-    //Serial_ISR();
-    Serial_TX_REGISTER = 'b';
-    Serial_TX_EMPTY = 0;
+void InterruptHigh() {
+	//Serial_ISR();
+    Serial_ISR_SimpleResponse();
 }
 
 /******************************************************************************/
@@ -39,7 +41,7 @@ void main() {
 	/* Set the PIC clock frequency */
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
-	/* Initialize the PIC pin for output */
+	/* Initialize the PIC pins for output */
 	TRISBbits.RB0 = 0; // output at pin 0
 	TRISBbits.RB1 = 0; 
 	TRISBbits.RB2 = 0; 
@@ -55,10 +57,6 @@ void main() {
 	/* Run code indefinitely */
 	if (status) {
 		while (1) {
-            //Serial_INTEN_TX = 1;
-            while(Serial_TX_EMPTY == 1) {
-                Serial_TX_REGISTER = 'a';
-            }
             //Serial_TX_WriteBufferMultiple(write);
 			//for (i = 0; i < 4; i = i + 1) {
 			//	Serial_TX_SendByte();

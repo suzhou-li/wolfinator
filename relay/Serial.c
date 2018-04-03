@@ -31,6 +31,7 @@ unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
  * @return None.
 *******************************************************************************/
 unsigned char Serial_Initialize() {
+    unsigned long baud_rate = 34; //416;
     unsigned char i;
     
     /* Set the pins for the RC pin */
@@ -42,8 +43,8 @@ unsigned char Serial_Initialize() {
     Serial_TX_ANSEL = 0;
     
     /* Set the bits for controlling the baud rate */
-    Serial_BAUDRATE_HB = (416ul >> 8); // value needs to be 34
-    Serial_BAUDRATE_LB = (416ul >> 0);
+    Serial_BAUDRATE_HB = (baud_rate >> 8); // value needs to be 34
+    Serial_BAUDRATE_LB = (baud_rate >> 0);
     
 	/* Set the bits for the TxSTA1 register */
 	Serial_TX_ENABLE   = 1; // Transmit enabled
@@ -65,21 +66,21 @@ unsigned char Serial_Initialize() {
     Serial_INT_GLOBAL     = 1; // Enable all high priority interrupts
     Serial_INT_PERIPHERAL = 1; // Enable all low priority interrupts
     
+    /* Enable interrupts on the PIE1 register */
+    Serial_INTEN_RC = 1; // Enables the EUSART1 receive interrupt
+    Serial_INTEN_TX = 1; // Enables the EUSART1 transmit interrupt
+    
 	/* Clear the interrupt flags on the PIR1 register */
     Serial_RC_FULL  = 0; // EUSART1 Receive Interrupt Flag bit
-    Serial_TX_EMPTY = 1; // EUSART1 Transmit Interrupt Flag bit
+    Serial_TX_EMPTY = 0; // EUSART1 Transmit Interrupt Flag bit
     
     /* Set the interrupt priority on the IPR1 register */
-    Serial_INTPRIORITY_RC = 0; // High priority
+    Serial_INTPRIORITY_RC = 1; // High priority
     Serial_INTPRIORITY_TX = 1; // High priority
     
     /* Initialize the RC and TX buffers */
     RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
     for (i = 0; i < MAX_RC_SIZE; i = i + 1) { RC_BUFFER[i] = 0; }
-    
-    /* Enable interrupts on the PIE1 register */
-    Serial_INTEN_RC = 0; // Enables the EUSART1 receive interrupt
-    Serial_INTEN_TX = 1; // Enables the EUSART1 transmit interrupt
     
     return 1;
 }
@@ -320,4 +321,22 @@ void Serial_ISR() {
 			Serial_INTEN_TX = 0;
 		}
 	}
+}
+
+void Serial_ISR_SimpleResponse() {
+    unsigned char data;
+    
+    /* If the RC register is full and we have RC interrupts enabled */
+    if (Serial_RC_FULL && Serial_INTEN_RC) {
+        
+        /* Read data from the RC register */
+        data = Serial_RC_REGISTER;
+        
+        /* If the TX register is empty and we have TX interrupts enabled, send out the received data */
+        if (Serial_TX_EMPTY && Serial_INTEN_TX) { Serial_TX_REGISTER = data; }
+    }
+    
+    /* Clear the interrupt flags */
+    Serial_RC_FULL  = 0;
+    Serial_TX_EMPTY = 0;
 }
