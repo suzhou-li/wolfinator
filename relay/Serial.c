@@ -6,8 +6,8 @@
 /******************************************************************************/
 /* DEFINITIONS  															  */
 /******************************************************************************/
-#define MAX_TX_SIZE     30
-#define MAX_RC_SIZE     30
+#define MAX_TX_SIZE     32
+#define MAX_RC_SIZE     32
 
 /******************************************************************************/
 /* GLOBAL VARIABLES															  */
@@ -95,7 +95,7 @@ unsigned char Serial_Initialize() {
  * @return Incremented index value.
 *******************************************************************************/
 unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max) {
-	if (++idx == max) { idx = 0; } // increment index; and if buffer reached, start from beginning
+	if (++idx == max) { idx = 0; } // increment index; and if buffer end reached, start from beginning
 	return idx; // return the index
 }
 
@@ -148,18 +148,18 @@ unsigned char Serial_RC_ReadBuffer() {
 }
 
 /***************************************************************************//**
- * @brief Reads a byte off the RC register.
+ * @brief Reads a byte off the RC register and writes it to the RC buffer.
  *
  * @param None.
  * 
- * @return Oldest character in the RC buffer.
+ * @return None.
 *******************************************************************************/
 void Serial_RC_ReadByte() {
 	/* Read the data from the RC register */
 	Serial_RC_WriteBuffer(Serial_RC_REGISTER);
 	
-	/* Clear the interrupt flag */
-	Serial_RC_FULL = 0;
+    /* REMOVE THIS LINE OF CODE. Testing used to send characters to the transmit buffer */
+    Serial_TX_WriteBuffer(Serial_RC_ReadBuffer());
 }
 
 /***************************************************************************//**
@@ -261,10 +261,10 @@ void Serial_TX_SendByte() {
  * @return 1 - data is available to be transmitted, 0 - data is not available..
 *******************************************************************************/
 unsigned char Serial_TX_isDataAvailable() {
-	/* If you are not at the end of the buffer, enable the TX interrupts */
+	/* If data is available, enable the TX interrupts */
 	if (TX_HEAD != TX_TAIL) { Serial_INTEN_TX = 1; }
 	
-	/* If you are at the end of the buffer, disable the TX interrupt */
+	/* If data is not available, disable the TX interrupt */
 	else { Serial_INTEN_TX = 0; }
 	
 	return Serial_INTEN_TX;
@@ -305,22 +305,26 @@ void Serial_ClearAll() {
  * @return None.
 *******************************************************************************/
 void Serial_ISR() {
-	unsigned char isData;
-	
+    /* If there is data in the RC register and the RC interrupts are enabled */
 	if (Serial_RC_FULL && Serial_INTEN_RC) {
+        /* Read the byte on the RC register and write it to the RC buffer */
 		Serial_RC_ReadByte();
 		if (Serial_RC_FULL) { Serial_RC_ReadByte(); }
 	}
 	
+    /* If the TX register is available and the TX interrupts are enabled */
 	if (Serial_TX_EMPTY && Serial_INTEN_TX) {
-		isData = Serial_TX_isDataAvailable();
-		if (isData) {
+        /* If data is available to be transmitted */
+		if (Serial_TX_isDataAvailable()) {
+            /* Write data from the TX buffer to the TX register*/
 			Serial_TX_SendByte();
 			if (Serial_TX_EMPTY) { Serial_TX_SendByte(); }
-		} else {
-			Serial_INTEN_TX = 0;
-		}
+        }
 	}
+    
+    /* Clear the interrupt flags */
+    Serial_RC_FULL  = 0;
+    Serial_TX_EMPTY = 0;
 }
 
 void Serial_ISR_SimpleResponse() {
