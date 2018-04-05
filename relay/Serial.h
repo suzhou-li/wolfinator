@@ -122,7 +122,10 @@ void Serial_TX_Clear();
 /* Clears both RC and TX buffers */
 void Serial_ClearAll();
 
-/* Interrupt service routing for EUSART communication */
+/* Interrupt service routine for EUSART communication */
 void Serial_ISR();
+
+/* Simple interrupt service routine to mimic inputs into EUSART communication */
+void Serial_ISR_SimpleResponse();
 
 #endif /* _SERIAL_H */
