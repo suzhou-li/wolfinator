@@ -1,5 +1,5 @@
 /***************************************************************************//**
- *   @file   SPI_ADS1298.c
+ *   @file   CommADS1298.c
  *   @brief  Implementation of Communication Driver.
  *   @author Suzhou Li (suzhou.li@duke.edu)
 ********************************************************************************
@@ -43,7 +43,7 @@
 /******************************************************************************/
 /* Include Files                                                              */
 /******************************************************************************/
-#include "SPI_ADS1298.h"
+#include "CommADS1298.h"
 
 /***************************************************************************//**
  * @brief Initializes the SPI communication peripheral for the ADS1298 chip.
@@ -52,37 +52,33 @@
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_ADS1298_Initialize() {
+unsigned char CommADS1298_Initialize() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP1CON1 = 0x00; // SSP control register 1
 	SSP1STAT = 0x00; // SSP status register
 
 	/* SSP1 Status Register bits */
-
-	//SPI_ADS1298_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
-	SPI_ADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
-
-	SPI_ADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
-	//SPI_ADS1298_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
-
+	CommADS1298_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
+	CommADS1298_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
+	
 	/* SSP1 Control Register 1 bits */
 
-	SPI_ADS1298_CLKPOL = 0; // idle state for clock is low
-	//SPI_ADS1298_CLKPOL = 1; // idle state for clock is high
+	CommADS1298_CLKPOL = 0; // idle state for clock is low
+	//CommADS1298_CLKPOL = 1; // idle state for clock is high
 	
-	SPI_ADS1298_FOSC = 0000; // set frequency of the shift clock (divide clock frequency by 4)
+	CommADS1298_FOSC = 0000; // set frequency of the shift clock (divide clock frequency by 4)
 	
-	SPI_ADS1298_ENABLE = 1; // enable the SPI
+	CommADS1298_ENABLE = 1; // enable the SPI
 
 	/* Properly configure the SPI/communication pins */
 	
-	SPI_ADS1298_SCLK_DIR = 0; // SCLK on ADS1298 is output
+	CommADS1298_SCLK_DIR = 0; // SCLK on ADS1298 is output
     
-	SPI_ADS1298_DOUT_DIR   = 1; // DOUT on ADS1298 is input into the PIC    
-	SPI_ADS1298_DOUT_ANSEL = 0; // clear analog select bit for PIC input
+	CommADS1298_DOUT_DIR   = 1; // DOUT on ADS1298 is input into the PIC    
+	CommADS1298_DOUT_ANSEL = 0; // clear analog select bit for PIC input
 
-	SPI_ADS1298_DIN_DIR = 0; // DIN on ADS1298 is output from PIC
+	CommADS1298_DIN_DIR = 0; // DIN on ADS1298 is output from PIC
 	
     ADS1298_DRDY1_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 1)
 	ADS1298_DRDY1_ANSEL = 0;	// clear analog select bit for DRDY (device 1)
@@ -90,9 +86,9 @@ unsigned char SPI_ADS1298_Initialize() {
     ADS1298_DRDY2_DIR   = 1; // DRDY on ADS1298 is input into PIC (device 2)
 	ADS1298_DRDY2_ANSEL = 0;	// clear analog select bit for DRDY (device 2)
     
-	SPI_ADS1298_CS1_DIR = 0; // CS on ADS1298 is output from PIC (device 1)
+	CommADS1298_CS1_DIR = 0; // CS on ADS1298 is output from PIC (device 1)
     
-	SPI_ADS1298_CS2_DIR = 0; // CS on ADS1298 is output from PIC (device 2)
+	CommADS1298_CS2_DIR = 0; // CS on ADS1298 is output from PIC (device 2)
     
 	/* Properly configure the other pins */
 	
@@ -113,15 +109,15 @@ unsigned char SPI_ADS1298_Initialize() {
  *
  * @return Number of written bytes.
 *******************************************************************************/
-unsigned char SPI_ADS1298_Write(unsigned char* data,
+unsigned char CommADS1298_Write(unsigned char* data,
                                 unsigned char bytesNumber)
 {
     unsigned char i;
     
     for(i = 0; i < bytesNumber; i++) {
-        SPI_ADS1298_DATABUFFER = *data++;
-        while (!SPI_ADS1298_BUFFERFULL);
-        SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
+        CommADS1298_DATABUFFER = *data++;
+        while (!CommADS1298_BUFFERFULL);
+        CommADS1298_INTERRUPT = 0; // reset the interrupt flag
     }
     
 	return bytesNumber;
@@ -135,16 +131,16 @@ unsigned char SPI_ADS1298_Write(unsigned char* data,
  *
  * @return Number of read bytes.
 *******************************************************************************/
-unsigned char SPI_ADS1298_Read(unsigned char* data,
+unsigned char CommADS1298_Read(unsigned char* data,
                                unsigned char bytesNumber)
 {
     unsigned char i;
     
     for(i = 0; i < bytesNumber; i++) {  
-        SPI_ADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
-        while (!SPI_ADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
-        *data++ = SPI_ADS1298_DATABUFFER; 
-        SPI_ADS1298_INTERRUPT = 0; // reset the interrupt flag
+        CommADS1298_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
+        while (!CommADS1298_BUFFERFULL); // while transmission has yet to be completed, wait
+        *data++ = CommADS1298_DATABUFFER; 
+        CommADS1298_INTERRUPT = 0; // reset the interrupt flag
     }
     
     return bytesNumber;

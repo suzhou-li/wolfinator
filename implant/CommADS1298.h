@@ -1,5 +1,5 @@
 /***************************************************************************//**
- *   @file   SPI_ADS1298.h
+ *   @file   CommADS1298.h
  *   @brief  Header file of Communication Driver.
  *   @author Suzhou Li (suzhou.li@duke.edu)
 ********************************************************************************
@@ -40,8 +40,8 @@
  *   SVN Revision: 570
 *******************************************************************************/
 
-#ifndef SPI_ADS1298_H
-#define SPI_ADS1298_H
+#ifndef CommADS1298_H
+#define CommADS1298_H
 
 /******************************************************************************/
 /* INCLUDE FILES															  */
@@ -53,35 +53,35 @@
 /******************************************************************************/
 
 /* Define the SPI bits in the SSP1 Status Register */
-#define SPI_ADS1298_CLKEDGE			SSP1STATbits.CKE // SPI Clock Edge Select bit
-#define SPI_ADS1298_SAMPLING		SSP1STATbits.SMP // SPI Data Input Sample bit
-#define SPI_ADS1298_BUFFERFULL		SSP1STATbits.BF // SPI Buffer Full Status bit
+#define CommADS1298_CLKEDGE			SSP1STATbits.CKE // SPI Clock Edge Select bit
+#define CommADS1298_SAMPLING		SSP1STATbits.SMP // SPI Data Input Sample bit
+#define CommADS1298_BUFFERFULL		SSP1STATbits.BF // SPI Buffer Full Status bit
 
 /* Define the SPI bits in SSP1 Control Register 1 */
-#define SPI_ADS1298_ENABLE  		SSP1CON1bits.SSPEN
-#define SPI_ADS1298_CLKPOL			SSP1CON1bits.CKP
-#define SPI_ADS1298_FOSC 			SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
+#define CommADS1298_ENABLE  		SSP1CON1bits.SSPEN
+#define CommADS1298_CLKPOL			SSP1CON1bits.CKP
+#define CommADS1298_FOSC 			SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
 
 /* Define the SPI bits for the ADS1298 data buffer */
-#define SPI_ADS1298_DATABUFFER		SSP1BUF
+#define CommADS1298_DATABUFFER		SSP1BUF
 
 /* Define the bit for the SSP1 Interrupt Flag */
-#define SPI_ADS1298_INTERRUPT       PIR1bits.SSP1IF
+#define CommADS1298_INTERRUPT       PIR1bits.SSP1IF
 
 /* Define the pins of the SPI for the ADS1298 in the PIC */
-#define SPI_ADS1298_SCLK_DIR		TRISCbits.RC3       // SCLK on RC3 direction
-#define SPI_ADS1298_SCLK_PIN        LATCbits.LATC3      // PIC SCLK pin
+#define CommADS1298_SCLK_DIR		TRISCbits.RC3       // SCLK on RC3 direction
+#define CommADS1298_SCLK_PIN        LATCbits.LATC3      // PIC SCLK pin
 
-#define SPI_ADS1298_DOUT_DIR		TRISCbits.RC4       // ADS DOUT to RC4 direction
-#define SPI_ADS1298_DOUT_ANSEL		ANSELCbits.ANSC4    // PIC DIN pin analog select bit
+#define CommADS1298_DOUT_DIR		TRISCbits.RC4       // ADS DOUT to RC4 direction
+#define CommADS1298_DOUT_ANSEL		ANSELCbits.ANSC4    // PIC DIN pin analog select bit
 
-#define SPI_ADS1298_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
+#define CommADS1298_DIN_DIR			TRISCbits.RC5       // ADS DIN from RC5 direction
 
-#define SPI_ADS1298_CS1_DIR			TRISAbits.RA2       // ADS CS (device 1) from RA0 direction
-#define SPI_ADS1298_CS1_PIN			LATAbits.LATA2      // PIC CS (device 1) pin (output) 
+#define CommADS1298_CS1_DIR			TRISAbits.RA2       // ADS CS (device 1) from RA0 direction
+#define CommADS1298_CS1_PIN			LATAbits.LATA2      // PIC CS (device 1) pin (output) 
 
-#define SPI_ADS1298_CS2_DIR			TRISAbits.RA3       // ADS CS (device 2) from RA0 direction
-#define SPI_ADS1298_CS2_PIN			LATAbits.LATA3      // PIC CS (device 2) pin (output) 
+#define CommADS1298_CS2_DIR			TRISAbits.RA3       // ADS CS (device 2) from RA0 direction
+#define CommADS1298_CS2_PIN			LATAbits.LATA3      // PIC CS (device 2) pin (output) 
 
 /* Define the other pins for the ADS1298 */
 #define ADS1298_DRDY1_DIR		TRISAbits.RA0       // DRDY pin direction
@@ -106,14 +106,14 @@
 /******************************************************************************/
 
 /* Initializes the SPI communication peripheral. */
-unsigned char SPI_ADS1298_Initialize();
+unsigned char CommADS1298_Initialize();
 
 /* Writes data to SPI. */
-unsigned char SPI_ADS1298_Write(unsigned char* data,
+unsigned char CommADS1298_Write(unsigned char* data,
 								unsigned char bytesNumber);
 
 /* Reads data from SPI. */
-unsigned char SPI_ADS1298_Read(unsigned char* data,
+unsigned char CommADS1298_Read(unsigned char* data,
 							   unsigned char bytesNumber);
 
-#endif	// SPI_ADS1298_H
+#endif	// CommADS1298_H

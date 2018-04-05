@@ -1,5 +1,5 @@
 /***************************************************************************//**
- *   @file   SPI_CC110L.c
+ *   @file   CommCC110L.c
  *   @brief  Implementation of Communication Driver.
  *   @author Suzhou Li (suzhou.li@duke.edu)
 ********************************************************************************
@@ -43,7 +43,7 @@
 /******************************************************************************/
 /* Include Files                                                              */
 /******************************************************************************/
-#include "SPI_CC110L.h"
+#include "CommCC110L.h"
 
 /***************************************************************************//**
  * @brief Initializes the SPI communication peripheral for the CC110L chip.
@@ -52,7 +52,7 @@
  *
  * @return 0 - Initialization failed, 1 - Initialization succeeded.
 *******************************************************************************/
-unsigned char SPI_CC110L_Initialize() {
+unsigned char CommCC110L_Initialize() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
 	SSP2CON1 = 0x00; // SSP control register 1
@@ -60,45 +60,31 @@ unsigned char SPI_CC110L_Initialize() {
 
 	/* SSP1 Status Register bits */
 
-	//SPI_CC110L_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
-	SPI_CC110L_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
+	//CommCC110L_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
+	CommCC110L_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
 
-	SPI_CC110L_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
-	//SPI_CC110L_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
+	CommCC110L_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
+	//CommCC110L_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
 
 	/* SSP1 Control Register 1 bits */
 
-	SPI_CC110L_CLKPOL = 0; // idle state for clock is low
-	//SPI_CC110L_CLKPOL = 1; // idle state for clock is high
+	CommCC110L_CLKPOL = 0; // idle state for clock is low
+	//CommCC110L_CLKPOL = 1; // idle state for clock is high
 	
-	SPI_CC110L_FOSC = 0000; // set frequency of the shift clock (divide clock frequency by 4)
+	CommCC110L_MODE = 0000; // set frequency of the shift clock (divide clock frequency by 4)
 	
-	SPI_CC110L_ENABLE = 1; // enable the SPI
+	CommCC110L_ENABLE = 1; // enable the SPI
 
 	/* Properly configure the SPI/communication pins */
 	
-	SPI_CC110L_SCLK_DIR = 0; // SCLK on CC110L is output
+	CommCC110L_SCLK_DIR = 0; // SCLK on CC110L is output
     
-	SPI_CC110L_DOUT_DIR   = 1; // DOUT on CC110L is input into the PIC    
-	SPI_CC110L_DOUT_ANSEL = 0; // clear analog select bit for PIC input
+	CommCC110L_DIN_DIR   = 1; // DOUT on CC110L is input into the PIC    
+	CommCC110L_DIN_ANSEL = 0; // clear analog select bit for PIC input
 
-	SPI_CC110L_DIN_DIR = 0; // DIN on CC110L is output from PIC
-	
-    SPI_CC110L_DRDY1_DIR   = 1; // DRDY on CC110L is input into PIC (device 1)
-	SPI_CC110L_DRDY1_ANSEL = 0;	// clear analog select bit for DRDY (device 1)
-	
-    SPI_CC110L_DRDY2_DIR   = 1; // DRDY on CC110L is input into PIC (device 2)
-	SPI_CC110L_DRDY2_ANSEL = 0;	// clear analog select bit for DRDY (device 2)
+	CommCC110L_DOUT_DIR = 0; // DIN on CC110L is output from PIC
     
-	SPI_CC110L_CS1_DIR = 0; // CS on CC110L is output from PIC (device 1)
-    
-	SPI_CC110L_CS2_DIR = 0; // CS on CC110L is output from PIC (device 2)
-    
-	/* Properly configure the other pins */
-    
-	CC110L_RESET_DIR = 0; // RESET is output
-
-	CC110L_PWR_DIR = 0; // PWRDN on CC110L is output from PIC
+	CommCC110L_CS_DIR = 0; // CS on CC110L is output from PIC
 
 	return 1;
 }
@@ -111,15 +97,15 @@ unsigned char SPI_CC110L_Initialize() {
  *
  * @return Number of written bytes.
 *******************************************************************************/
-unsigned char SPI_CC110L_Write(unsigned char* data,
+unsigned char CommCC110L_Write(unsigned char* data,
                                 unsigned char bytesNumber)
 {
     unsigned char i;
     
     for(i = 0; i < bytesNumber; i++) {
-        SPI_CC110L_DATABUFFER = *data++;
-        while (!SPI_CC110L_BUFFERFULL);
-        SPI_CC110L_INTERRUPT = 0; // reset the interrupt flag
+        CommCC110L_DATABUFFER = *data++;
+        while (!CommCC110L_BUFFERFULL);
+        CommCC110L_INTERRUPT = 0; // reset the interrupt flag
     }
     
 	return bytesNumber;
@@ -133,16 +119,16 @@ unsigned char SPI_CC110L_Write(unsigned char* data,
  *
  * @return Number of read bytes.
 *******************************************************************************/
-unsigned char SPI_CC110L_Read(unsigned char* data,
+unsigned char CommCC110L_Read(unsigned char* data,
                                unsigned char bytesNumber)
 {
     unsigned char i;
     
     for(i = 0; i < bytesNumber; i++) {  
-        SPI_CC110L_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
-        while (!SPI_CC110L_BUFFERFULL); // while transmission has yet to be completed, wait
-        *data++ = SPI_CC110L_DATABUFFER; 
-        SPI_CC110L_INTERRUPT = 0; // reset the interrupt flag
+        CommCC110L_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
+        while (!CommCC110L_BUFFERFULL); // while transmission has yet to be completed, wait
+        *data++ = CommCC110L_DATABUFFER; 
+        CommCC110L_INTERRUPT = 0; // reset the interrupt flag
     }
     
     return bytesNumber;

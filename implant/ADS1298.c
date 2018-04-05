@@ -8,7 +8,7 @@
 /* INCLUDE FILES															 */
 /*****************************************************************************/
 #include "ADS1298.h"			
-#include "SPI_ADS1298.h"
+#include "CommADS1298.h"
 
 /*****************************************************************************/
 /* CONSTANTS    															 */
@@ -28,7 +28,7 @@ static unsigned long frameSize2;
  * @return None.
 *******************************************************************************/
 void ADS1298_WriteSingleOpCode(unsigned char writeVal) {
-	SPI_ADS1298_Write(&writeVal, 1);
+	CommADS1298_Write(&writeVal, 1);
 }
 
 /***************************************************************************//**
@@ -52,15 +52,15 @@ void ADS1298_WriteRegisters(unsigned char device,
 	
 	/* Write the opcode and register values */
     if (device == 1) {
-		SPI_ADS1298_CS1_PIN = 0;
-		SPI_ADS1298_Write(writeOpCode, 2);
-		SPI_ADS1298_Write(regVals, writeNum);
-		SPI_ADS1298_CS1_PIN = 1;
+		CommADS1298_CS1_PIN = 0;
+		CommADS1298_Write(writeOpCode, 2);
+		CommADS1298_Write(regVals, writeNum);
+		CommADS1298_CS1_PIN = 1;
 	} else if (device == 2) {
-		SPI_ADS1298_CS2_PIN = 0;
-		SPI_ADS1298_Write(writeOpCode, 2);
-		SPI_ADS1298_Write(regVals, writeNum);
-		SPI_ADS1298_CS2_PIN = 1;
+		CommADS1298_CS2_PIN = 0;
+		CommADS1298_Write(writeOpCode, 2);
+		CommADS1298_Write(regVals, writeNum);
+		CommADS1298_CS2_PIN = 1;
 	}
 }
 
@@ -85,15 +85,15 @@ void ADS1298_ReadRegisters(unsigned char device,
 	
 	/* Write the opcode and read the register values */
 	if (device == 1) {
-		SPI_ADS1298_CS1_PIN = 0;
-		SPI_ADS1298_Write(readOpCode, 2);
-		SPI_ADS1298_Read(regVals, readNum);
-		SPI_ADS1298_CS1_PIN = 1;
+		CommADS1298_CS1_PIN = 0;
+		CommADS1298_Write(readOpCode, 2);
+		CommADS1298_Read(regVals, readNum);
+		CommADS1298_CS1_PIN = 1;
 	} else if (device == 2) {
-		SPI_ADS1298_CS2_PIN = 0;
-		SPI_ADS1298_Write(readOpCode, 2);
-		SPI_ADS1298_Read(regVals, readNum);
-		SPI_ADS1298_CS2_PIN = 1;
+		CommADS1298_CS2_PIN = 0;
+		CommADS1298_Write(readOpCode, 2);
+		CommADS1298_Read(regVals, readNum);
+		CommADS1298_CS2_PIN = 1;
 	}
 }
 
@@ -126,19 +126,19 @@ unsigned char ADS1298_PowerUp() {
     for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
     
 	/* Reset the device by issuing the RESET opcode */
-    SPI_ADS1298_CS1_PIN = 0;
-	SPI_ADS1298_CS2_PIN = 0;
+    CommADS1298_CS1_PIN = 0;
+	CommADS1298_CS2_PIN = 0;
     ADS1298_WriteSingleOpCode(ADS1298_RESET);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
     for (i = 0; i < 500; i++) {} // wait at least 18 shift clock cycles
     
     /* Stop the read data continuously mode (SDATAC) */
-	SPI_ADS1298_CS1_PIN = 0;
-    SPI_ADS1298_CS2_PIN = 0;
+	CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
     ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
     for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
     
     /* Stop the data conversion (STOP) */
@@ -159,11 +159,11 @@ unsigned char ADS1298_PowerDown() {
     unsigned char i;
     
 	/* Stop the read data continuously mode (SDATAC) */
-	SPI_ADS1298_CS1_PIN = 0;
-    SPI_ADS1298_CS2_PIN = 0;
+	CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
     ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
     for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
 	
 	/* Stop the data conversion (STOP) */
@@ -265,7 +265,7 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
         if (frameSize1 != 0) {
             
             /* Bring the CS pin low */
-            SPI_ADS1298_CS1_PIN = 0;
+            CommADS1298_CS1_PIN = 0;
 
             /* Wait for the DRDY_NOT line to go low */
             while (ADS1298_DRDY1_NOT);
@@ -274,19 +274,19 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
             ADS1298_WriteSingleOpCode(ADS1298_RDATA);
 
             /* Read the data in the frame */
-            SPI_ADS1298_Read(pDataBuffer, frameSize1);
+            CommADS1298_Read(pDataBuffer, frameSize1);
 
             /* Issue the STOP opcode to stop converting data */
             ADS1298_WriteSingleOpCode(ADS1298_STOP);
 
             /* Exit from the current device by bringing CS high */
-            SPI_ADS1298_CS1_PIN = 1;
+            CommADS1298_CS1_PIN = 1;
 
         /* If frame size for device 2 is 0, do not read from device 2 */
         } else if (frameSize2 != 0) {
 
             /* Bring the CS pin low */
-            SPI_ADS1298_CS2_PIN = 0;
+            CommADS1298_CS2_PIN = 0;
 
             /* Wait for the DRDY_NOT line to go low */
             while (ADS1298_DRDY2_NOT);
@@ -295,10 +295,10 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
             ADS1298_WriteSingleOpCode(ADS1298_RDATA);
 
             /* Read the data in the frame */
-            SPI_ADS1298_Read(pDataBuffer, frameSize2);
+            CommADS1298_Read(pDataBuffer, frameSize2);
 
             /* Exit from the current device by bringing CS high */
-            SPI_ADS1298_CS2_PIN = 1;
+            CommADS1298_CS2_PIN = 1;
         }
         
         /* Bring the START pin low to stop the data conversions */
@@ -310,11 +310,11 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
     ADS1298_START_PIN = 1;
     
     /* Issue the RDATAC command to read data continuously */
-    SPI_ADS1298_CS1_PIN = 0;
-    SPI_ADS1298_CS2_PIN = 0;
+    CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
     ADS1298_WriteSingleOpCode(ADS1298_RDATAC);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
     
     /* Iterate through the specified number of frames */
 	for (i = 0; i < frameCnt; i = i + 1) {
@@ -326,42 +326,42 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
         if (frameSize1 != 0) { // device 1
 
             /* Bring the CS pin low */
-            SPI_ADS1298_CS1_PIN = 0;
+            CommADS1298_CS1_PIN = 0;
 
             /* Read all the data in the frame */
-            SPI_ADS1298_Read(pDataBuffer, 3); // read the header
-            SPI_ADS1298_Read(pDataBuffer, frameSize1 - 3); // overwrite the header
+            CommADS1298_Read(pDataBuffer, 3); // read the header
+            CommADS1298_Read(pDataBuffer, frameSize1 - 3); // overwrite the header
 
             /* Increment the address of pDataBuffer */
             pDataBuffer = pDataBuffer + (frameSize1 - 3);
 
             /* Bring the CS pin high */
-            SPI_ADS1298_CS1_PIN = 1;
+            CommADS1298_CS1_PIN = 1;
 
         /* If frame size for device 2 is 0, do not read from device 2 */
         } else if (frameSize2 != 0) { // device 2
 
             /* Bring the CS pin low */
-            SPI_ADS1298_CS2_PIN = 0;
+            CommADS1298_CS2_PIN = 0;
 
             /* Read all the data in the frame */
-            SPI_ADS1298_Read(pDataBuffer, 3); // read the header
-            SPI_ADS1298_Read(pDataBuffer, frameSize2 - 3); // overwrite the header
+            CommADS1298_Read(pDataBuffer, 3); // read the header
+            CommADS1298_Read(pDataBuffer, frameSize2 - 3); // overwrite the header
 
             /* Increment the address of pDataBuffer */
             pDataBuffer = pDataBuffer + (frameSize2 - 3);
 
             /* Bring the CS pin high */
-            SPI_ADS1298_CS2_PIN = 1;
+            CommADS1298_CS2_PIN = 1;
         }
 	}
     
     /* Issue the SDATAC opcode to stop reading data */
-    SPI_ADS1298_CS1_PIN = 0;
-    SPI_ADS1298_CS2_PIN = 0;
+    CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
     ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
-    SPI_ADS1298_CS1_PIN = 1;
-	SPI_ADS1298_CS2_PIN = 1;
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
     for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
     
     /* Bring the START pin low to stop the data conversions */
@@ -423,7 +423,7 @@ unsigned char ADS1298_Initialize(unsigned char* channels) {
 	unsigned char status = 0;
 	
 	/* Initialize the device */
-	status = SPI_ADS1298_Initialize();
+	status = CommADS1298_Initialize();
 	if (!status) { return 0; } // if initialization was unsuccessful, return 0
 	
 	/* Power up the device */

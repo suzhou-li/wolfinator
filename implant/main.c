@@ -14,7 +14,7 @@
 
 #include "ADS1298.h"
 #include "LogicAnalyzer.h"
-#include "SPI_ADS1298.h"
+#include "CommADS1298.h"
 
 /******************************************************************************/
 /* MAIN FUNCTION															  */
