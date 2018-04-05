@@ -1,7 +1,13 @@
+/******************************************************************************/
+/* COMBILER INFORMATION														  */
+/******************************************************************************/
 #pragma config WDTEN = OFF
 #pragma config FOSC  = INTIO67
 #pragma config XINST = OFF
 
+/******************************************************************************/
+/* INCLUDE FILES															  */
+/******************************************************************************/
 #include <p18f46k22.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +16,9 @@
 #include "LogicAnalyzer.h"
 #include "SPI_ADS1298.h"
 
+/******************************************************************************/
+/* MAIN FUNCTION															  */
+/******************************************************************************/
 void main() {
 	unsigned char status;
     unsigned char dummy[100];
@@ -49,4 +58,114 @@ void main() {
             }
 		}
 	}
+}
+
+unsigned char mode;
+
+unsigned char changeMode(unsigned char cmd, unsigned char* data) {
+	unsigned char status;
+	switch (cmd) {
+		
+		/* Mode 0x00
+		 * Device is powered OFF.
+		 */
+		case 0x00:
+			if (cmd) {
+				status = ADS1298_PowerUp();
+				if (status) mode = 0x01;
+			} else {
+				mode = mode;
+			}
+			
+		/* Mode 0x01
+		 * Device is powered ON. All channels are turned off and shorted. Device is idle.
+		 */
+		case 0x01:
+			switch (cmd) {
+				/* Turn off the device */
+				case 0x00:
+					mode = 0x00;
+					
+				/* Select the channel */
+				case 0x01:
+					ADS1298_SetChannels(data);
+					mode = 0x01;
+					
+				/* No channels selected */
+				default:
+					mode = mode;
+			}
+		
+		/* Mode 0x02
+		 * Device is powered ON. Channel(s) is/are turned on. Device is idle.
+		 */
+		case 0x02:
+			switch (cmd) {
+				/* Turn off the channels */
+				case 0x00:
+					ADS1298_SetChannels(data);
+					mode = 0x01;
+					
+				/* Start data conversions */
+				case 0x01:
+					mode = 0x03;
+				
+				/* Select different channels */
+				default:
+					ADS1298_SetChannels(data);
+					mode = mode;
+			}
+		
+		/* Mode 0x03
+		 * Device is converting data. No data is being collected.
+		 */
+		case 0x03:
+			switch (cmd) {
+				/* Stop data conversions */
+				case 0x00:
+					mode = 0x02;
+					
+				/* Start collecting data */
+				case 0x01:
+					mode = 0x04;
+				
+				/* Turn off all channels */
+				case 0x02:
+					mode = 0x01;
+				
+				/* Change the channel */
+				default:
+					mode = mode;
+			}
+		
+		/* Mode 0x04
+		 * Device is converting data. Data is being collected.
+		 */
+		case 0x04:
+			switch (cmd) {
+				/* Stop collecting data */
+				case 0x00:
+					mode = 0x03;
+					
+				/* Send collected data to the relay box */
+				case 0x01:
+					mode = 0x05;
+				
+				/* Change the channel */
+				default:
+					mode = mode;
+			}
+		
+		/* Mod 0x05
+		 * Device is sending data out. Currently, PIC to PIC communication.
+		 */
+		case 0x05:
+			if (cmd) {
+				mode = 0x04;
+			} else {
+				mode = mode;
+			}
+	}
+	
+	return mode
 }
