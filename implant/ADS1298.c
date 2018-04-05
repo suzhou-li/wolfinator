@@ -110,15 +110,13 @@ void ADS1298_ReadRegisters(unsigned char device,
  * 
  * @param None.
  * 
- * @return 1 - power-up success, 0 - power-up failed
+ * @return 1 - power-up success, 0 - power-up failed.
 *******************************************************************************/
 unsigned char ADS1298_PowerUp() {
 	unsigned int i = 0;
     
-	/* Bring the PWR and RESET pin HIGH to turn on the device */
+	/* Bring the PWR pin HIGH to turn on the device */
 	ADS1298_PWR_PIN = 1;
-	
-	/* Wait appropriate amount of time for the device to power up */
 	for (i = 0; i < 50000; i++) {} 
 	
     /* Reset the device by toggling the RESET pin */
@@ -147,6 +145,33 @@ unsigned char ADS1298_PowerUp() {
     ADS1298_START_PIN = 0;
     for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
     
+	return 1;
+}
+
+/***************************************************************************//**
+ * @brief	Turns off the device.
+ * 
+ * @param	None.
+ * 
+ * @return	1 - power-up success, 0 - power-up failed
+*******************************************************************************/
+unsigned char ADS1298_PowerDown() {
+	/* Stop the read data continuously mode (SDATAC) */
+	SPI_ADS1298_CS1_PIN = 0;
+    SPI_ADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
+    SPI_ADS1298_CS1_PIN = 1;
+	SPI_ADS1298_CS2_PIN = 1;
+    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
+	
+	/* Stop the data conversion (STOP) */
+	ADS1298_START_PIN = 0;
+    for (i = 0; i < 50; i++) {} // wait at least 4 shift clock cycles
+	
+	/* Bring the PWR pin LOW in order to turn off the device */
+	ADS1298_PWR_PIN = 0;
+	for (i = 0; i < 50000; i++) {} 
+	
 	return 1;
 }
 
@@ -181,6 +206,38 @@ void ADS1298_ComputeFrameSize() {
 	else { frameSize1 = 0; } // if there are no channels active, set frame size to 0
 	if (numCh2 > 0) { frameSize2 = (numCh2 * 3) + 3; }
 	else { frameSize2 = 0; }
+}
+
+/***************************************************************************//**
+ * @brief	Turns the specified channels on and off.
+ * 
+ * @param	Pointer to 2 character array storing information on which channels
+ *          to turn on and turn off.
+ * 
+ * @return	None.
+*******************************************************************************/
+void ADS1298_SetChannels(unsigned char* channels) {
+	unsigned char i, j;
+	
+	/* Iterate through the 2 devices */
+	for (i = 0; i < 2; i = i + 1) {
+		
+		/* Iterate through the 8 channels of one device */
+		for (j = 0; j < 8; j = j + 1) {
+			/* Define the register values for the channel settings */
+			if (((channels[i] >> (7 - j)) & 0x01) == 0x01) { // turn channel on
+				writeVals[4 + j] = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST;
+			} else { // turn channel off
+				writeVals[4 + j] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT;
+			}
+		}
+		
+		/* Send the register values */
+		ADS1298_WriteRegisters(i + 1, ADS1298_CONFIG1, 12, writeVals);
+	}
+	
+	/* Compute the new frame size */
+	ADS1298_ComputeFrameSize();
 }
 
 /***************************************************************************//**
@@ -342,23 +399,9 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
 	/* CONFIG4    */ writeVals[22] = 0x00;
 	/* WCT1       */ writeVals[23] = 0x00;
 	/* WCT2       */ writeVals[24] = 0x00;
-		
-	/* Iterate through the 2 devices */
-	for (i = 0; i < 2; i = i + 1) {
-		
-		/* Iterate through the 8 channels of one device */
-		for (j = 0; j < 8; j = j + 1) {
-			/* Define the register values for the channel settings */
-			if (((channels[i] >> (7 - j)) & 0x01) == 0x01) { // turn channel on
-				writeVals[4 + j] = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST;
-			} else { // turn channel off
-				writeVals[4 + j] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT;
-			}
-		}
-		
-		/* Send the register values */
-		ADS1298_WriteRegisters(i + 1, ADS1298_CONFIG1, 12, writeVals);
-	}
+	
+	/* Set the channels */
+	ADS1298_SetChannels(channels);
 	
 	return 1;
 }

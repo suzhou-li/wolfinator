@@ -373,9 +373,15 @@ void ADS1298_ReadRegisters(unsigned char device,
 
 /* Powers up the ADS1298 chip */
 unsigned char ADS1298_PowerUp();						   
-						   
+						
+/* Powers down the ADS1298 chip */
+unsigned char ADS1298_PowerDown();
+						
 /* Computes the frame size for each ADS1298 chip */
 void ADS1298_ComputeFrameSize();
+
+/* Sets the channels for the ADS1298 chip */
+void ADS1298_SetChannels(unsigned char* channels);
 
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
