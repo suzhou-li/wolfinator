@@ -156,6 +156,8 @@ unsigned char ADS1298_PowerUp() {
  * @return	1 - power-up success, 0 - power-up failed
 *******************************************************************************/
 unsigned char ADS1298_PowerDown() {
+    unsigned char i;
+    
 	/* Stop the read data continuously mode (SDATAC) */
 	SPI_ADS1298_CS1_PIN = 0;
     SPI_ADS1298_CS2_PIN = 0;
@@ -217,6 +219,7 @@ void ADS1298_ComputeFrameSize() {
  * @return	None.
 *******************************************************************************/
 void ADS1298_SetChannels(unsigned char* channels) {
+    unsigned char writeVals[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 	unsigned char i, j;
 	
 	/* Iterate through the 2 devices */
@@ -226,14 +229,14 @@ void ADS1298_SetChannels(unsigned char* channels) {
 		for (j = 0; j < 8; j = j + 1) {
 			/* Define the register values for the channel settings */
 			if (((channels[i] >> (7 - j)) & 0x01) == 0x01) { // turn channel on
-				writeVals[4 + j] = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST;
+				writeVals[j] = ADS1298_CHSET_GAIN_12 | ADS1298_CHSET_MUX_TEST;
 			} else { // turn channel off
-				writeVals[4 + j] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT;
+				writeVals[j] = ADS1298_CHSET_PD | ADS1298_CHSET_MUX_SHORT;
 			}
 		}
 		
 		/* Send the register values */
-		ADS1298_WriteRegisters(i + 1, ADS1298_CONFIG1, 12, writeVals);
+		ADS1298_WriteRegisters(i + 1, ADS1298_CH1SET, 8, writeVals);
 	}
 	
 	/* Compute the new frame size */
@@ -373,7 +376,6 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
  * @return 1 - initialization success, 0 - initialization failed
 *******************************************************************************/
 unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
-	unsigned char i, j;
 	unsigned char writeVals[25] = {0, 0, 0, 0, 0, \
                                    0, 0, 0, 0, 0, \
                                    0, 0, 0, 0, 0, \
@@ -400,6 +402,10 @@ unsigned char ADS1298_RegistersForTesting(unsigned char* channels) {
 	/* WCT1       */ writeVals[23] = 0x00;
 	/* WCT2       */ writeVals[24] = 0x00;
 	
+    /* Write the standard configuration registers */
+    ADS1298_WriteRegisters(1, ADS1298_CONFIG1, 4, writeVals);
+    ADS1298_WriteRegisters(2, ADS1298_CONFIG1, 4, writeVals);
+    
 	/* Set the channels */
 	ADS1298_SetChannels(channels);
 	

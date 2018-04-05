@@ -167,5 +167,5 @@ unsigned char changeMode(unsigned char cmd, unsigned char* data) {
 			}
 	}
 	
-	return mode
+	return mode;
 }
