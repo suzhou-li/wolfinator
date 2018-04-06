@@ -49,41 +49,48 @@
 #include <p18f46k22.h>                                                   
 
 /******************************************************************************/
-/* DEFINE VARIABLES															  */
+/* DEFINE REGISTER BITS														  */
 /******************************************************************************/
 
 /* Define the SPI bits in the SSP2 Status Register */
-#define CommCC110L_CLKEDGE			SSP2STATbits.CKE // SPI Clock Edge Select bit
-#define CommCC110L_SAMPLING         SSP2STATbits.SMP // SPI Data Input Sample bit
-#define CommCC110L_BUFFERFULL		SSP2STATbits.BF // SPI Buffer Full Status bit
+#define CommCC110L_CLKEDGE                  SSP2STATbits.CKE // SPI Clock Edge Select bit
+#define CommCC110L_SAMPLING                 SSP2STATbits.SMP // SPI Data Input Sample bit
+#define CommCC110L_BUFFERFULL               SSP2STATbits.BF // SPI Buffer Full Status bit
 
 /* Define the SPI bits in SSP2 Control Register 1 */
-#define CommCC110L_ENABLE           SSP2CON1bits.SSPEN
-#define CommCC110L_CLKPOL			SSP2CON1bits.CKP
-#define CommCC110L_MODE 			SSP2CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
+#define CommCC110L_ENABLE                   SSP2CON1bits.SSPEN
+#define CommCC110L_CLKPOL                   SSP2CON1bits.CKP
+#define CommCC110L_MODE                     SSP2CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
 
 /* Define the SPI bits for the CC110L data buffer */
-#define CommCC110L_DATABUFFER		SSP2BUF
-
-/* Define the bit for the SSP2 Interrupt Flag */
-#define CommCC110L_INTERRUPT        PIR3bits.SSP2IF
+#define CommCC110L_DATABUFFER               SSP2BUF
 
 /* Define the interrupt bits */
-#define CC110L_INT_PRIORITY			RCONbits.IPEN
-#define CC110L_INT_GLOBAL			INTCONbits.GIEH
-#define CC110L_INT_PERIPHERAL       INTCONbits.PEIE
+#define CommCC110L_GLOBALINT_PRIORITY       RCONbits.IPEN
+#define CommCC110L_GLOBALINT_GLOBAL			INTCONbits.GIEH
+#define CommCC110L_GLOBALINT_PERIPHERAL     INTCONbits.PEIE
+
+/* Define the MSSP bits on the PIR (Peripheral Interrupt Request) Register */
+#define CommCC110L_SSPINTERRUPT             PIR3bits.SSP2IF // Synchronous Serial Port 2 Interrupt Flag bit
+
+/* Define the MSSP bits on the PIE (Peripheral Interrupt Enable) Register */
+#define CommCC110L_SSPINT_ENABLE            PIE3bits.SSP2IE // Synchronous Serial Port 2 Interrupt Enable bit
+
+/* Define the MSSP bits on the IPR (Peripheral Interrupt Priority) Register */
+#define CommCC110L_SSPINT_PRIORITY          IPR3bits.SSP2IP // Synchronous Serial Port 2 Interrupt Priority bit
 
 /* Define the pins of the SPI for the CC110L in the PIC */
-#define CommCC110L_SCLK_DIR         TRISDbits.RD0       // SCLK on RC3 direction
-#define CommCC110L_SCLK_PIN         LATDbits.LATD0      // PIC SCLK pin
+#define CommCC110L_SCLK_DIR                 TRISDbits.RD0       // SCLK on RC3 direction
+#define CommCC110L_SCLK_PIN                 LATDbits.LATD0      // PIC SCLK pin
 
-#define CommCC110L_DIN_DIR          TRISDbits.RD1       // Into implant from relay
-#define CommCC110L_DIN_ANSEL		ANSELDbits.ANSD1
+#define CommCC110L_DIN_DIR                  TRISDbits.RD1       // Into implant from relay
+#define CommCC110L_DIN_ANSEL                ANSELDbits.ANSD1
 
-#define CommCC110L_DOUT_DIR			TRISDbits.RD4       // Out of implant to relay
+#define CommCC110L_DOUT_DIR                 TRISDbits.RD4       // Out of implant to relay
 
-#define CommCC110L_CS_DIR			TRISDbits.RD3       // PIC CS input and output
-#define CommCC110L_CS_PIN			LATDbits.LATD3
+#define CommCC110L_CS_DIR                   TRISDbits.RD3       // PIC CS input and output
+#define CommCC110L_CS_DPIN                  LATDbits.LATD3
+#define CommCC110L_CS_APIN                  PORTDbits.RD3
 
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */

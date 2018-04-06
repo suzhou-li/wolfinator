@@ -59,21 +59,13 @@ unsigned char CommCC110L_Initialize() {
 	SSP2STAT = 0x00; // SSP status register
 
 	/* SSP1 Status Register bits */
-
-	//CommCC110L_SAMPLING = 0; // master mode sampling occurs at the middle of data output time
 	CommCC110L_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
-
-	CommCC110L_CLKEDGE = 0; // transmit occurs on transition from active to idle clock state
-	//CommCC110L_CLKEDGE = 1; // transmit occurs on transition from idle to active clock state 
-
+	CommCC110L_CLKEDGE  = 0; // transmit occurs on transition from active to idle clock state
+	
 	/* SSP1 Control Register 1 bits */
-
-	CommCC110L_CLKPOL = 0; // idle state for clock is low
-	//CommCC110L_CLKPOL = 1; // idle state for clock is high
-	
-	CommCC110L_MODE = 0000; // set frequency of the shift clock (divide clock frequency by 4)
-	
-	CommCC110L_ENABLE = 1; // enable the SPI
+	CommCC110L_CLKPOL = 0;      // idle state for clock is low
+	CommCC110L_MODE   = 0b0100; // set frequency of the shift clock (divide clock frequency by 4)
+	CommCC110L_ENABLE = 1;      // enable the SPI
 
 	/* Properly configure the SPI/communication pins */
 	
@@ -85,7 +77,17 @@ unsigned char CommCC110L_Initialize() {
 	CommCC110L_DOUT_DIR = 0; // DIN on CC110L is output from PIC
     
 	CommCC110L_CS_DIR = 0; // CS on CC110L is output from PIC
+    
+    /* Define the global interrupt bits */
+    CommCC110L_GLOBALINT_PRIORITY   = 1;	
+    CommCC110L_GLOBALINT_GLOBAL     = 1;
+    CommCC110L_GLOBALINT_PERIPHERAL = 1;
 
+    /* Define the MSSP 2 Interrupt bits */
+    CommCC110L_SSPINT_ENABLE   = 1;
+    CommCC110L_SSPINT_PRIORITY = 1;
+    CommCC110L_SSPINTERRUPT    = 0;
+    
 	return 1;
 }
 
@@ -105,7 +107,7 @@ unsigned char CommCC110L_Write(unsigned char* data,
     for(i = 0; i < bytesNumber; i++) {
         CommCC110L_DATABUFFER = *data++;
         while (!CommCC110L_BUFFERFULL);
-        CommCC110L_INTERRUPT = 0; // reset the interrupt flag
+        CommCC110L_SSPINTERRUPT = 0; // reset the interrupt flag
     }
     
 	return bytesNumber;
@@ -128,7 +130,7 @@ unsigned char CommCC110L_Read(unsigned char* data,
         CommCC110L_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
         while (!CommCC110L_BUFFERFULL); // while transmission has yet to be completed, wait
         *data++ = CommCC110L_DATABUFFER; 
-        CommCC110L_INTERRUPT = 0; // reset the interrupt flag
+        CommCC110L_SSPINTERRUPT = 0; // reset the interrupt flag
     }
     
     return bytesNumber;

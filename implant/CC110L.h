@@ -343,4 +343,66 @@
 #define CC110L_AGCCTRL0_FILTERLENGTH_32SAMPLES		(0b10 << 0)	//	10 = Channel filter samples - 32, OOK decision boundary - 12 dB
 #define CC110L_AGCCTRL0_FILTERLENGTH_64SAMPLES		(0b11 << 0)	//	11 = Channel filter samples - 64, OOK decision boundary - 16 dB
 
+/******************************************************************************/
+/* FUNCTIONS																  */
+/******************************************************************************/
+
+/******************************************************************************/
+/* General Functions Part 1													  */
+/******************************************************************************/
+
+/* Initialize the CC110L chip */
+unsigned char CC110L_Initialize();
+
+/* Increments the index value */
+unsigned char CC110L_IncrementIndex(unsigned char idx, unsigned char max);
+
+/******************************************************************************/
+/* Receive Functions														  */
+/******************************************************************************/
+
+/* Stores new character to the RC buffer */
+void CC110L_RC_WriteBuffer(unsigned char data);
+
+/* Reads a byte of data from the RC buffer */
+void CC110L_RC_ReadBuffer();
+
+/* Reads a byte of data from the RC register */
+void CC110L_RC_ReadByte();
+
+/* Checks if data is available on the RC buffer */
+unsigned char CC110L_RC_isDataAvailable();
+
+/* Resets the RC buffer */
+void CC110L_RC_Clear();
+
+/******************************************************************************/
+/* Transmit Functions														  */
+/******************************************************************************/
+
+/* Stores a new character to the TX buffer */
+void CC110L_TX_WriteBuffer(unsigned char data);
+
+/* Stores multiple new characters to the TX buffer */
+void CC110L_TX_WriteBufferMultiple(unsigned char* data);
+
+/* Sends out a byte on the TX register */
+void CC110L_TX_SendByte();
+
+/* Checks if data is available on the TX buffer */
+unsigned char CC110L_TX_isDataAvailable();
+
+/* Resets the TX buffer */
+void CC110L_TX_Clear();
+
+/******************************************************************************/
+/* General Functions Part 2													  */
+/******************************************************************************/
+
+/* Clears both RC and TX buffers */
+void CC110L_ClearAll();
+
+/* Interrupt service routine for SSP communication */
+void CC110L_ISR();
+
 #endif /* _CC110L_H_ */

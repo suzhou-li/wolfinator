@@ -25,7 +25,7 @@ unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
 /******************************************************************************/
 
 /***************************************************************************//**
- * @brief Initializes the EUSART communication. 
+ * @brief Initializes the CC110L (in this case initialize the swinging buffers). 
  *
  * @param None.
  * 
@@ -46,7 +46,8 @@ unsigned char CC110L_Initialize() {
  *        been reached. If the end has been reached, the index is wrapped back 
  *        around to the beginning of the buffer.
  *
- * @param None.
+ * @param idx - Index that you desire to increment.
+ * @param max - Maximum index that you can go to (buffer size).
  * 
  * @return Incremented index value.
 *******************************************************************************/
@@ -89,7 +90,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	unsigned char data;
 	
 	/* Temporarily disable the interrupts */
-	CC110L_INT_GLOBAL = 0;
+	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
 	data = RC_BUFFER[RC_TAIL];
@@ -98,7 +99,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	RC_TAIL = CC110L_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
-	CC110L_INT_GLOBAL = 1;
+	CommCC110L_GLOBALINT_GLOBAL = 1;
 	
 	return data;
 }
@@ -158,7 +159,7 @@ void CC110L_RC_Clear() {
 *******************************************************************************/
 void CC110L_TX_WriteBuffer(unsigned char data) {
 	/* Temporarily disable interrupts */
-	CC110L_INT_GLOBAL = 0;
+	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
 	TX_BUFFER[TX_HEAD] = data;
@@ -170,7 +171,7 @@ void CC110L_TX_WriteBuffer(unsigned char data) {
 	if (TX_HEAD == TX_TAIL) { TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
-	CC110L_INT_GLOBAL = 1;
+	CommCC110L_GLOBALINT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
@@ -201,7 +202,7 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 *******************************************************************************/
 void CC110L_TX_SendByte() {
 	/* Temporarily disable interrupts */
-	CC110L_INT_GLOBAL = 0;
+	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
 	CommCC110L_Write(&TX_BUFFER[TX_TAIL], 1);
@@ -210,7 +211,7 @@ void CC110L_TX_SendByte() {
 	TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
-	CC110L_INT_GLOBAL = 1;
+	CommCC110L_GLOBALINT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
