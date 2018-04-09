@@ -77,11 +77,6 @@ unsigned char CommCC110L_Initialize() {
 	CommCC110L_DOUT_DIR = 0; // DIN on CC110L is output from PIC
     
 	CommCC110L_CS_DIR = 0; // CS on CC110L is output from PIC
-    
-    /* Define the global interrupt bits */
-    CommCC110L_GLOBALINT_PRIORITY   = 1;	
-    CommCC110L_GLOBALINT_GLOBAL     = 1;
-    CommCC110L_GLOBALINT_PERIPHERAL = 1;
 
     /* Define the MSSP 2 Interrupt bits */
     CommCC110L_SSPINT_ENABLE   = 1;
@@ -106,7 +101,7 @@ unsigned char CommCC110L_Write(unsigned char* data,
     
     for(i = 0; i < bytesNumber; i++) {
         CommCC110L_DATABUFFER = *data++;
-        while (!CommCC110L_BUFFERFULL);
+        while (!CommCC110L_SSPINTERRUPT);
         CommCC110L_SSPINTERRUPT = 0; // reset the interrupt flag
     }
     
@@ -126,9 +121,8 @@ unsigned char CommCC110L_Read(unsigned char* data,
 {
     unsigned char i;
     
-    for(i = 0; i < bytesNumber; i++) {  
-        CommCC110L_DATABUFFER = 0x00; // write 0's to the data buffer to shift bits in
-        while (!CommCC110L_BUFFERFULL); // while transmission has yet to be completed, wait
+    for(i = 0; i < bytesNumber; i++) {
+        while (!CommCC110L_SSPINTERRUPT); // while transmission has yet to be completed, wait
         *data++ = CommCC110L_DATABUFFER; 
         CommCC110L_SSPINTERRUPT = 0; // reset the interrupt flag
     }

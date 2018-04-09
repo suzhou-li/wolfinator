@@ -4,8 +4,8 @@
  *   @author Suzhou Li (suzhou.li@duke.edu)
 *******************************************************************************/
 
-#ifndef _CC110L_H_
-#define _CC110L_H_
+#ifndef CC110L_H
+#define CC110L_H
 
 /******************************************************************************/
 /* CC110L COMMAND STROBES													  */
@@ -253,10 +253,10 @@
 #define CC110L_BSCFG_BSPRE_3KP			(0b10 << 4)	//	10 = 3KP
 #define CC110L_BSCFG_BSPRE_4KP			(0b11 << 4)	//	11 = 4KP
 													// Clock recovery feedback loop integral gain to be used after a sync word is detected
-#define CC110L_BSCFG_BSPOST_SAMEPRE		(0b0 << 3)	//	0 = Same as BS_PRE_KI
+#define CC110L_BSCFG_BSPOST_SAMEKI		(0b0 << 3)	//	0 = Same as BS_PRE_KI
 #define CC110L_BSCFG_BSPOST_KIDIV2		(0b1 << 3)	//	1 = KI / 2
 													// Clock recovery feedback loop proportional gain to be used after a sync word is detected
-#define CC110L_BSCFG_BSPOST_SAMEPRE		(0b0 << 2)	//	0 = Same as BS_PRE_KP
+#define CC110L_BSCFG_BSPOST_SAMEKP		(0b0 << 2)	//	0 = Same as BS_PRE_KP
 #define CC110L_BSCFG_BSPOST_KPDIV2		(0b1 << 2)	//	1 = KP
 													// Saturation point for the data rate offset compensation algorithm
 #define CC110L_BSCFG_BSLIMIT_NONE		(0b00 << 0)	//	00 = +/- 0 (No data rate offset compensation performed)
@@ -365,7 +365,7 @@ unsigned char CC110L_IncrementIndex(unsigned char idx, unsigned char max);
 void CC110L_RC_WriteBuffer(unsigned char data);
 
 /* Reads a byte of data from the RC buffer */
-void CC110L_RC_ReadBuffer();
+unsigned char CC110L_RC_ReadBuffer();
 
 /* Reads a byte of data from the RC register */
 void CC110L_RC_ReadByte();
@@ -405,4 +405,4 @@ void CC110L_ClearAll();
 /* Interrupt service routine for SSP communication */
 void CC110L_ISR();
 
-#endif /* _CC110L_H_ */
+#endif /* CC110L_H */

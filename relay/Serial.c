@@ -6,14 +6,14 @@
 /******************************************************************************/
 /* DEFINITIONS  															  */
 /******************************************************************************/
-#define MAX_TX_SIZE     32
-#define MAX_RC_SIZE     32
+#define Serial_MAX_TX_SIZE     32
+#define Serial_MAX_RC_SIZE     32
 
 /******************************************************************************/
 /* GLOBAL VARIABLES															  */
 /******************************************************************************/
-unsigned char TX_BUFFER[MAX_TX_SIZE], RC_BUFFER[MAX_RC_SIZE];
-unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
+unsigned char Serial_TX_BUFFER[Serial_MAX_TX_SIZE], Serial_RC_BUFFER[Serial_MAX_RC_SIZE];
+unsigned char Serial_TX_HEAD, Serial_TX_TAIL, Serial_RC_HEAD, Serial_RC_TAIL;
 
 /******************************************************************************/
 /* FUNCTIONS																  */
@@ -63,8 +63,8 @@ unsigned char Serial_Initialize() {
 	
     /* Activate the interrupts */
     Serial_INT_PRIORITY   = 1; // Enable priority levels on interrupts
-    Serial_INT_GLOBAL     = 1; // Enable all high priority interrupts
-    Serial_INT_PERIPHERAL = 1; // Enable all low priority interrupts
+    Serial_INT_GLOBAL     = 0; // Enable all high priority interrupts
+    Serial_INT_PERIPHERAL = 0; // Enable all low priority interrupts
     
     /* Enable interrupts on the PIE1 register */
     Serial_INTEN_RC = 1; // Enables the EUSART1 receive interrupt
@@ -79,8 +79,8 @@ unsigned char Serial_Initialize() {
     Serial_INTPRIORITY_TX = 1; // High priority
     
     /* Initialize the RC and TX buffers */
-    RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
-    for (i = 0; i < MAX_RC_SIZE; i = i + 1) { RC_BUFFER[i] = 0; }
+    Serial_RC_HEAD = Serial_RC_TAIL = Serial_TX_HEAD = Serial_TX_TAIL = 0;
+    for (i = 0; i < Serial_MAX_RC_SIZE; i = i + 1) { Serial_RC_BUFFER[i] = 0; }
     
     return 1;
 }
@@ -113,13 +113,13 @@ unsigned char Serial_IncrementIndex(unsigned char idx, unsigned char max) {
 *******************************************************************************/
 void Serial_RC_WriteBuffer(unsigned char data) {
 	/* Write the data to the current head of the buffer */
-	RC_BUFFER[RC_HEAD] = data;
+	Serial_RC_BUFFER[Serial_RC_HEAD] = data;
 	
 	/* Increment the head of the buffer */
-	RC_HEAD = Serial_IncrementIndex(RC_HEAD, MAX_RC_SIZE);
+	Serial_RC_HEAD = Serial_IncrementIndex(Serial_RC_HEAD, Serial_MAX_RC_SIZE);
 	
 	/* If you have reached the tail, increment the tail of the buffer */
-	if (RC_HEAD == RC_TAIL) { RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE); }
+	if (Serial_RC_HEAD == Serial_RC_TAIL) { Serial_RC_TAIL = Serial_IncrementIndex(Serial_RC_TAIL, Serial_MAX_RC_SIZE); }
 }
 
 /***************************************************************************//**
@@ -136,10 +136,10 @@ unsigned char Serial_RC_ReadBuffer() {
 	Serial_INT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
-	data = RC_BUFFER[RC_TAIL];
+	data = Serial_RC_BUFFER[Serial_RC_TAIL];
 	
 	/* Increment the tail of the buffer */
-	RC_TAIL = Serial_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
+	Serial_RC_TAIL = Serial_IncrementIndex(Serial_RC_TAIL, Serial_MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
 	Serial_INT_GLOBAL = 1;
@@ -170,7 +170,7 @@ void Serial_RC_ReadByte() {
  * @return 1 - data is available to be read, 0 - data is not available.
 *******************************************************************************/
 unsigned char Serial_RC_isDataAvailable() {
-	return (RC_HEAD != RC_TAIL);
+	return (Serial_RC_HEAD != Serial_RC_TAIL);
 }
 
 /***************************************************************************//**
@@ -181,7 +181,7 @@ unsigned char Serial_RC_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void Serial_RC_Clear() {
-	RC_HEAD = RC_TAIL = 0; // reset the head and the tail to the beginning of the buffer
+	Serial_RC_HEAD = Serial_RC_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
 
 /******************************************************************************/
@@ -200,13 +200,13 @@ void Serial_TX_WriteBuffer(unsigned char data) {
 	Serial_INT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
-	TX_BUFFER[TX_HEAD] = data;
+	Serial_TX_BUFFER[Serial_TX_HEAD] = data;
 	
 	/* Increment the head of the buffer */
-	TX_HEAD = Serial_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
+	Serial_TX_HEAD = Serial_IncrementIndex(Serial_TX_HEAD, Serial_MAX_TX_SIZE);
 	
 	/* If you have reached the tail, increment the tail of the buffer */
-	if (TX_HEAD == TX_TAIL) { TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
+	if (Serial_TX_HEAD == Serial_TX_TAIL) { Serial_TX_TAIL = Serial_IncrementIndex(Serial_TX_TAIL, Serial_MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
 	Serial_INTEN_TX = 1;
@@ -244,10 +244,10 @@ void Serial_TX_SendByte() {
 	Serial_INT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
-	Serial_TX_REGISTER = TX_BUFFER[TX_TAIL];
+	Serial_TX_REGISTER = Serial_TX_BUFFER[Serial_TX_TAIL];
 	
 	/* Increment the tail of the buffer */
-	TX_TAIL = Serial_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
+	Serial_TX_TAIL = Serial_IncrementIndex(Serial_TX_TAIL, Serial_MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
 	Serial_INT_GLOBAL = 1;
@@ -262,7 +262,7 @@ void Serial_TX_SendByte() {
 *******************************************************************************/
 unsigned char Serial_TX_isDataAvailable() {
 	/* If data is available, enable the TX interrupts */
-	if (TX_HEAD != TX_TAIL) { Serial_INTEN_TX = 1; }
+	if (Serial_TX_HEAD != Serial_TX_TAIL) { Serial_INTEN_TX = 1; }
 	
 	/* If data is not available, disable the TX interrupt */
 	else { Serial_INTEN_TX = 0; }
@@ -278,7 +278,7 @@ unsigned char Serial_TX_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void Serial_TX_Clear() {
-	TX_HEAD = TX_TAIL = 0; // reset the head and the tail to the beginning of the buffer
+	Serial_TX_HEAD = Serial_TX_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
 
 /******************************************************************************/

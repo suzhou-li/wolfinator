@@ -7,14 +7,14 @@
 /******************************************************************************/
 /* DEFINITIONS  															  */
 /******************************************************************************/
-#define MAX_TX_SIZE     32
-#define MAX_RC_SIZE     32
+#define SSP_MAX_TX_SIZE     32
+#define SSP_MAX_RC_SIZE     32
 
 /******************************************************************************/
 /* GLOBAL VARIABLES															  */
 /******************************************************************************/
-unsigned char TX_BUFFER[MAX_TX_SIZE], RC_BUFFER[MAX_RC_SIZE];
-unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
+unsigned char SSP_TX_BUFFER[SSP_MAX_TX_SIZE], SSP_RC_BUFFER[SSP_MAX_RC_SIZE];
+unsigned char SSP_TX_HEAD, SSP_TX_TAIL, SSP_RC_HEAD, SSP_RC_TAIL;
 
 /******************************************************************************/
 /* FUNCTIONS																  */
@@ -35,8 +35,8 @@ unsigned char CC110L_Initialize() {
     unsigned char i;
     
     /* Initialize the RC and TX buffers */
-    RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
-    for (i = 0; i < MAX_RC_SIZE; i = i + 1) { RC_BUFFER[i] = 0; }
+    SSP_RC_HEAD = SSP_RC_TAIL = SSP_TX_HEAD = SSP_TX_TAIL = 0;
+    for (i = 0; i < SSP_MAX_RC_SIZE; i = i + 1) { SSP_RC_BUFFER[i] = 0; }
     
     return 1;
 }
@@ -70,13 +70,13 @@ unsigned char CC110L_IncrementIndex(unsigned char idx, unsigned char max) {
 *******************************************************************************/
 void CC110L_RC_WriteBuffer(unsigned char data) {
 	/* Write the data to the current head of the buffer */
-	RC_BUFFER[RC_HEAD] = data;
+	SSP_RC_BUFFER[SSP_RC_HEAD] = data;
 	
 	/* Increment the head of the buffer */
-	RC_HEAD = CC110L_IncrementIndex(RC_HEAD, MAX_RC_SIZE);
+	SSP_RC_HEAD = CC110L_IncrementIndex(SSP_RC_HEAD, SSP_MAX_RC_SIZE);
 	
 	/* If you have reached the tail, increment the tail of the buffer */
-	if (RC_HEAD == RC_TAIL) { RC_TAIL = CC110L_IncrementIndex(RC_TAIL, MAX_RC_SIZE); }
+	if (SSP_RC_HEAD == SSP_RC_TAIL) { SSP_RC_TAIL = CC110L_IncrementIndex(SSP_RC_TAIL, SSP_MAX_RC_SIZE); }
 }
 
 /***************************************************************************//**
@@ -93,10 +93,10 @@ unsigned char CC110L_RC_ReadBuffer() {
 	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
-	data = RC_BUFFER[RC_TAIL];
+	data = SSP_RC_BUFFER[SSP_RC_TAIL];
 	
 	/* Increment the tail of the buffer */
-	RC_TAIL = CC110L_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
+	SSP_RC_TAIL = CC110L_IncrementIndex(SSP_RC_TAIL, SSP_MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
 	CommCC110L_GLOBALINT_GLOBAL = 1;
@@ -132,7 +132,7 @@ void CC110L_RC_ReadByte() {
  * @return 1 - data is available to be read, 0 - data is not available.
 *******************************************************************************/
 unsigned char CC110L_RC_isDataAvailable() {
-	return (RC_HEAD != RC_TAIL);
+	return (SSP_RC_HEAD != SSP_RC_TAIL);
 }
 
 /***************************************************************************//**
@@ -143,7 +143,7 @@ unsigned char CC110L_RC_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void CC110L_RC_Clear() {
-	RC_HEAD = RC_TAIL = 0; // reset the head and the tail to the beginning of the buffer
+	SSP_RC_HEAD = SSP_RC_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
 
 /******************************************************************************/
@@ -162,13 +162,13 @@ void CC110L_TX_WriteBuffer(unsigned char data) {
 	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
-	TX_BUFFER[TX_HEAD] = data;
+	SSP_TX_BUFFER[SSP_TX_HEAD] = data;
 	
 	/* Increment the head of the buffer */
-	TX_HEAD = CC110L_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
+	SSP_TX_HEAD = CC110L_IncrementIndex(SSP_TX_HEAD, SSP_MAX_TX_SIZE);
 	
 	/* If you have reached the tail, increment the tail of the buffer */
-	if (TX_HEAD == TX_TAIL) { TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
+	if (SSP_TX_HEAD == SSP_TX_TAIL) { SSP_TX_TAIL = CC110L_IncrementIndex(SSP_TX_TAIL, SSP_MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
 	CommCC110L_GLOBALINT_GLOBAL = 1;
@@ -205,10 +205,10 @@ void CC110L_TX_SendByte() {
 	CommCC110L_GLOBALINT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
-	CommCC110L_Write(&TX_BUFFER[TX_TAIL], 1);
+	CommCC110L_Write(&SSP_TX_BUFFER[SSP_TX_TAIL], 1);
 	
 	/* Increment the tail of the buffer */
-	TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
+	SSP_TX_TAIL = CC110L_IncrementIndex(SSP_TX_TAIL, SSP_MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
 	CommCC110L_GLOBALINT_GLOBAL = 1;
@@ -223,7 +223,7 @@ void CC110L_TX_SendByte() {
 *******************************************************************************/
 unsigned char CC110L_TX_isDataAvailable() {
 	/* If data is available, enable the TX interrupts */
-	if (TX_HEAD != TX_TAIL) { return 1; }
+	if (SSP_TX_HEAD != SSP_TX_TAIL) { return 1; }
 	
 	/* If data is not available, disable the TX interrupt */
 	else { return 0; }
@@ -237,7 +237,7 @@ unsigned char CC110L_TX_isDataAvailable() {
  * @return None.
 *******************************************************************************/
 void CC110L_TX_Clear() {
-	TX_HEAD = TX_TAIL = 0; // reset the head and the tail to the beginning of the buffer
+	SSP_TX_HEAD = SSP_TX_TAIL = 0; // reset the head and the tail to the beginning of the buffer
 }
 
 /******************************************************************************/

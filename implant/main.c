@@ -12,16 +12,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ADS1298.h"
-#include "LogicAnalyzer.h"
 #include "CommADS1298.h"
+#include "ADS1298.h"
+#include "CommCC110L.h"
+#include "CC110L.h"
+#include "LogicAnalyzer.h"
 
 /******************************************************************************/
 /* MAIN FUNCTION															  */
 /******************************************************************************/
 void main() {
 	unsigned char status;
-    unsigned char dummy[100];
+    unsigned char dummy[2] = {'a','b'};
     unsigned char channels[2] = {0, 0};
     unsigned long i;
     
@@ -45,17 +47,19 @@ void main() {
 	/* Keep reading these registers */
 	if (status) {
 		while (1) {
+            CommCC110L_Write(dummy, 1);
+            
             /* Read register data */
             //ADS1298_ReadRegisters(1, ADS1298_ID, 1, dummy);
             //ADS1298_ReadRegisters(2, ADS1298_ID, 1, dummy);
             
             /* Read the test data */
-            ADS1298_ReadData(dummy, 30ul);
+            //ADS1298_ReadData(dummy, 30ul);
             
             /* Print the data to the logic analyzer */
-            for (i = 0; i < 30; i = i + 1) {
-                LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
-            }
+            //for (i = 0; i < 30; i = i + 1) {
+                //LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
+            //}
 		}
 	}
 }

@@ -55,8 +55,8 @@
 unsigned char CommCC110L_Initialize() {
 	
 	/* Re-initialize the SSP1 control register 1 and the status register */
-	SSP2CON1 = 0x00; // SSP control register 1
-	SSP2STAT = 0x00; // SSP status register
+	SSP1CON1 = 0x00; // SSP control register 1
+	SSP1STAT = 0x00; // SSP status register
 
 	/* SSP1 Status Register bits */
 	CommCC110L_SAMPLING = 1; // master mode sampling occurs at the end of data output time (What we originally thought it was)
@@ -64,7 +64,7 @@ unsigned char CommCC110L_Initialize() {
 	
 	/* SSP1 Control Register 1 bits */
 	CommCC110L_CLKPOL = 0;      // idle state for clock is low
-	CommCC110L_MODE   = 0b0100; // set frequency of the shift clock (divide clock frequency by 4)
+	CommCC110L_MODE   = 0b0000; // set frequency of the shift clock (divide clock frequency by 4)
 	CommCC110L_ENABLE = 1;      // enable the SPI
 
 	/* Properly configure the SPI/communication pins */
@@ -100,7 +100,7 @@ unsigned char CommCC110L_Initialize() {
  * @return Number of written bytes.
 *******************************************************************************/
 unsigned char CommCC110L_Write(unsigned char* data,
-                                unsigned char bytesNumber)
+                               unsigned char bytesNumber)
 {
     unsigned char i;
     
@@ -122,7 +122,7 @@ unsigned char CommCC110L_Write(unsigned char* data,
  * @return Number of read bytes.
 *******************************************************************************/
 unsigned char CommCC110L_Read(unsigned char* data,
-                               unsigned char bytesNumber)
+                              unsigned char bytesNumber)
 {
     unsigned char i;
     

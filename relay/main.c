@@ -15,6 +15,9 @@
 /* INCLUDE FILES															  */
 /******************************************************************************/
 #include <p18f46k22.h>
+
+#include "CommCC110L.h"
+#include "CC110L.h"
 #include "Serial.h"
 
 /******************************************************************************/
@@ -35,21 +38,11 @@ void InterruptHigh() {
 /* MAIN FUNCTION															  */
 /******************************************************************************/
 void main() {
-	unsigned char status, i;
-    unsigned char write[6] = {'a', 'b', 'c', 'd', 0x00, 0x00};
+	unsigned char status;
+    unsigned char data[6] = {'a', 'b', 'c', 'd', 0x00, 0x00};
 	
 	/* Set the PIC clock frequency */
     OSCCON = 0b01110110; // set clock to 16 MHz
-	
-	/* Initialize the PIC pins for output */
-	TRISBbits.RB0 = 0; // output at pin 0
-	TRISBbits.RB1 = 0; 
-	TRISBbits.RB2 = 0; 
-	TRISBbits.RB3 = 0; 
-    LATBbits.LATB0 = 0; // initialize the pin LOW
-    LATBbits.LATB1 = 1;
-    LATBbits.LATB2 = 1;
-    LATBbits.LATB3 = 1;
 	
 	/* Initialize the EUSART communication */
 	status = Serial_Initialize();
@@ -57,10 +50,7 @@ void main() {
 	/* Run code indefinitely */
 	if (status) {
 		while (1) {
-            //Serial_TX_WriteBufferMultiple(write);
-			//for (i = 0; i < 4; i = i + 1) {
-			//	Serial_TX_SendByte();
-			//}
+            CommCC110L_Read(data, 0x01);
 		}
 	}
 }

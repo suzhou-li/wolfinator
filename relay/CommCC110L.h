@@ -40,8 +40,8 @@
  *   SVN Revision: 570
 *******************************************************************************/
 
-#ifndef CommCC110L_H
-#define CommCC110L_H
+#ifndef _CommCC110L_H_
+#define _CommCC110L_H_
 
 /******************************************************************************/
 /* INCLUDE FILES															  */
@@ -53,44 +53,39 @@
 /******************************************************************************/
 
 /* Define the SPI bits in the SSP2 Status Register */
-#define CommCC110L_CLKEDGE                  SSP2STATbits.CKE // SPI Clock Edge Select bit
-#define CommCC110L_SAMPLING                 SSP2STATbits.SMP // SPI Data Input Sample bit
-#define CommCC110L_BUFFERFULL               SSP2STATbits.BF // SPI Buffer Full Status bit
+#define CommCC110L_CLKEDGE                  SSP1STATbits.CKE // SPI Clock Edge Select bit
+#define CommCC110L_SAMPLING                 SSP1STATbits.SMP // SPI Data Input Sample bit
+#define CommCC110L_BUFFERFULL               SSP1STATbits.BF // SPI Buffer Full Status bit
 
 /* Define the SPI bits in SSP2 Control Register 1 */
-#define CommCC110L_ENABLE                   SSP2CON1bits.SSPEN
-#define CommCC110L_CLKPOL                   SSP2CON1bits.CKP
-#define CommCC110L_MODE                     SSP2CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
+#define CommCC110L_ENABLE                   SSP1CON1bits.SSPEN
+#define CommCC110L_CLKPOL                   SSP1CON1bits.CKP
+#define CommCC110L_MODE                     SSP1CON1bits.SSPM // set SCLK to run FOSC/4 for SPI
 
 /* Define the SPI bits for the CC110L data buffer */
-#define CommCC110L_DATABUFFER               SSP2BUF
-
-/* Define the interrupt bits */
-#define CommCC110L_GLOBALINT_PRIORITY       RCONbits.IPEN
-#define CommCC110L_GLOBALINT_GLOBAL			INTCONbits.GIEH
-#define CommCC110L_GLOBALINT_PERIPHERAL     INTCONbits.PEIE
+#define CommCC110L_DATABUFFER               SSP1BUF
 
 /* Define the MSSP bits on the PIR (Peripheral Interrupt Request) Register */
-#define CommCC110L_SSPINTERRUPT             PIR3bits.SSP2IF // Synchronous Serial Port 2 Interrupt Flag bit
+#define CommCC110L_SSPINTERRUPT             PIR1bits.SSP1IF // Synchronous Serial Port 2 Interrupt Flag bit
 
 /* Define the MSSP bits on the PIE (Peripheral Interrupt Enable) Register */
-#define CommCC110L_SSPINT_ENABLE            PIE3bits.SSP2IE // Synchronous Serial Port 2 Interrupt Enable bit
+#define CommCC110L_SSPINT_ENABLE            PIE1bits.SSP1IE // Synchronous Serial Port 2 Interrupt Enable bit
 
 /* Define the MSSP bits on the IPR (Peripheral Interrupt Priority) Register */
-#define CommCC110L_SSPINT_PRIORITY          IPR3bits.SSP2IP // Synchronous Serial Port 2 Interrupt Priority bit
+#define CommCC110L_SSPINT_PRIORITY          IPR1bits.SSP1IP // Synchronous Serial Port 2 Interrupt Priority bit
 
 /* Define the pins of the SPI for the CC110L in the PIC */
-#define CommCC110L_SCLK_DIR                 TRISDbits.RD0       // SCLK on RC3 direction
-#define CommCC110L_SCLK_PIN                 LATDbits.LATD0      // PIC SCLK pin
+#define CommCC110L_SCLK_DIR                 TRISCbits.RC3       // SCLK on RC3 direction
+#define CommCC110L_SCLK_PIN                 LATCbits.LATC3      // PIC SCLK pin
 
-#define CommCC110L_DIN_DIR                  TRISDbits.RD1       // Into implant from relay
-#define CommCC110L_DIN_ANSEL                ANSELDbits.ANSD1
+#define CommCC110L_DIN_DIR                  TRISCbits.RC4       // Into implant from relay
+#define CommCC110L_DIN_ANSEL                ANSELCbits.ANSC4
 
-#define CommCC110L_DOUT_DIR                 TRISDbits.RD4       // Out of implant to relay
+#define CommCC110L_DOUT_DIR                 TRISCbits.RC5       // Out of implant to relay
 
-#define CommCC110L_CS_DIR                   TRISDbits.RD3       // PIC CS input and output
-#define CommCC110L_CS_DPIN                  LATDbits.LATD3
-#define CommCC110L_CS_APIN                  PORTDbits.RD3
+#define CommCC110L_CS_DIR                   TRISAbits.RA5       // PIC CS input and output
+#define CommCC110L_CS_DPIN                  LATAbits.LATA5
+#define CommCC110L_CS_APIN                  PORTAbits.RA5
 
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */
@@ -107,4 +102,4 @@ unsigned char CommCC110L_Write(unsigned char* data,
 unsigned char CommCC110L_Read(unsigned char* data,
 							   unsigned char bytesNumber);
 
-#endif	// CommCC110L_H
+#endif	// _CommCC110L_H_
