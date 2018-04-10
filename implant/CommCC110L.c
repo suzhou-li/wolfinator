@@ -81,13 +81,13 @@ unsigned char CommCC110L_Initialize() {
     CommCC110L_CS_ANSEL = 0; // clear analog select bit for slave select input
     
     /* Define the global interrupt bits */
-    INTERRUPT_PRIORITY   = 0;
-    INTERRUPT_GLOBAL     = 0;
-    INTERRUPT_PERIPHERAL = 0;
+    INTERRUPT_PRIORITY   = 1;
+    INTERRUPT_GLOBAL     = 1;
+    INTERRUPT_PERIPHERAL = 1;
     
     /* Define the MSSP 2 Interrupt bits */
-    CommCC110L_SSPINT_ENABLE   = 0;
-    CommCC110L_SSPINT_PRIORITY = 0;
+    CommCC110L_SSPINT_ENABLE   = 1;
+    CommCC110L_SSPINT_PRIORITY = 1;
     CommCC110L_SSPINTERRUPT    = 0;
     
 	return 1;

@@ -1,9 +1,15 @@
 /******************************************************************************/
 /* COMBILER INFORMATION														  */
 /******************************************************************************/
+
+/* Configuration settings */
 #pragma config WDTEN = OFF
 #pragma config FOSC  = INTIO67
 #pragma config XINST = OFF
+
+/* Configure the interrupt settings */
+#pragma interrupt InterruptHigh
+#pragma code InterruptVectorHigh = 0x08
 
 /******************************************************************************/
 /* INCLUDE FILES															  */
@@ -17,6 +23,19 @@
 #include "CommCC110L.h"
 #include "CC110L.h"
 #include "LogicAnalyzer.h"
+
+/******************************************************************************/
+/* INTERRUPTS																  */
+/******************************************************************************/
+void InterruptVectorHigh() { 
+	_asm
+		goto InterruptHigh
+	_endasm
+}
+
+void InterruptHigh() {
+    CC110L_ISR();
+}
 
 /******************************************************************************/
 /* MAIN FUNCTION															  */
@@ -36,6 +55,9 @@ void main() {
 	 */
     OSCCON = 0b01110110; // set clock to 16 MHz
 	
+    TRISBbits.TRISB0 = 0;
+    LATBbits.LATB7 = 0;
+    
 	/* Initialize the ADS1298 */
 	channels[0] = 0b10000000; // device 1 channels
 	channels[1] = 0b00000000; // device 2 channels
@@ -47,11 +69,12 @@ void main() {
 	/* Initialize the Logic Analyzer */
 	status &= LogicAnalyzer_Initialize();
     
+    CC110L_TX_WriteBuffer(0x01);
+    CC110L_TX_SendByte();
+    
 	/* Keep reading these registers */
 	if (status) {
 		while (1) {
-            CommCC110L_Write(dummy, 1);
-            
             /* Read register data */
             //ADS1298_ReadRegisters(1, ADS1298_ID, 1, dummy);
             //ADS1298_ReadRegisters(2, ADS1298_ID, 1, dummy);
@@ -61,7 +84,7 @@ void main() {
             
             /* Print the data to the logic analyzer */
             //for (i = 0; i < 30; i = i + 1) {
-                //LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
+            //    LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
             //}
 		}
 	}

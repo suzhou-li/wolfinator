@@ -267,5 +267,14 @@ void CC110L_ClearAll() {
  * @return None.
 *******************************************************************************/
 void CC110L_ISR() {
-    
+    if (CommCC110L_SSPINTERRUPT & CommCC110L_SSPINT_ENABLE) {
+        CC110L_TX_WriteBuffer(0x41);
+        CC110L_TX_WriteBuffer(0x52);
+        CC110L_TX_WriteBuffer(0x73);
+        CC110L_TX_SendByte();
+        CC110L_TX_SendByte();
+        CC110L_TX_SendByte();
+        
+        LATBbits.LATB7 = !LATBbits.LATB7;
+    }
 }
