@@ -47,10 +47,15 @@ void main() {
 	/* Initialize the EUSART communication */
 	status = Serial_Initialize();
 	
+    /* Initialize the SPI communication */
+    status &= CC110L_Initialize();
+    
 	/* Run code indefinitely */
 	if (status) {
 		while (1) {
+            CommCC110L_CS_DPIN = 0;
             CommCC110L_Read(data, 0x01);
+            CommCC110L_CS_DPIN = 1;
 		}
 	}
 }

@@ -32,7 +32,10 @@ unsigned char TX_HEAD, TX_TAIL, RC_HEAD, RC_TAIL;
  * @return None.
 *******************************************************************************/
 unsigned char CC110L_Initialize() {
-    unsigned char i;
+    unsigned char status, i;
+    
+    /* Initialize the SPI communication */
+    status = CommCC110L_Initialize();
     
     /* Initialize the RC and TX buffers */
     RC_HEAD = RC_TAIL = TX_HEAD = TX_TAIL = 0;
@@ -90,7 +93,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	unsigned char data;
 	
 	/* Temporarily disable the interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
 	data = RC_BUFFER[RC_TAIL];
@@ -99,7 +102,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	RC_TAIL = CC110L_IncrementIndex(RC_TAIL, MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 	
 	return data;
 }
@@ -159,7 +162,7 @@ void CC110L_RC_Clear() {
 *******************************************************************************/
 void CC110L_TX_WriteBuffer(unsigned char data) {
 	/* Temporarily disable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
 	TX_BUFFER[TX_HEAD] = data;
@@ -171,7 +174,7 @@ void CC110L_TX_WriteBuffer(unsigned char data) {
 	if (TX_HEAD == TX_TAIL) { TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
@@ -202,7 +205,7 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 *******************************************************************************/
 void CC110L_TX_SendByte() {
 	/* Temporarily disable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
 	CommCC110L_Write(&TX_BUFFER[TX_TAIL], 1);
@@ -211,7 +214,7 @@ void CC110L_TX_SendByte() {
 	TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**

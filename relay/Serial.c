@@ -62,21 +62,21 @@ unsigned char Serial_Initialize() {
 	Serial_BAUD_AUTO    = 0; // Auto-Baud Detect mode is disabled
 	
     /* Activate the interrupts */
-    Serial_INT_PRIORITY   = 1; // Enable priority levels on interrupts
-    Serial_INT_GLOBAL     = 0; // Enable all high priority interrupts
-    Serial_INT_PERIPHERAL = 0; // Enable all low priority interrupts
+    INTERRUPT_PRIORITY   = 1; // Enable priority levels on interrupts
+    INTERRUPT_GLOBAL     = 0; // Enable all high priority interrupts
+    INTERRUPT_PERIPHERAL = 0; // Enable all low priority interrupts
     
     /* Enable interrupts on the PIE1 register */
-    Serial_INTEN_RC = 1; // Enables the EUSART1 receive interrupt
-    Serial_INTEN_TX = 1; // Enables the EUSART1 transmit interrupt
+    Serial_RCINT_ENABLE = 1; // Enables the EUSART1 receive interrupt
+    Serial_TXINT_ENABLE = 1; // Enables the EUSART1 transmit interrupt
     
 	/* Clear the interrupt flags on the PIR1 register */
     Serial_RC_FULL  = 0; // EUSART1 Receive Interrupt Flag bit
     Serial_TX_EMPTY = 0; // EUSART1 Transmit Interrupt Flag bit
     
     /* Set the interrupt priority on the IPR1 register */
-    Serial_INTPRIORITY_RC = 1; // High priority
-    Serial_INTPRIORITY_TX = 1; // High priority
+    Serial_RCINT_PRIORITY = 1; // High priority
+    Serial_TXINT_PRIORITY = 1; // High priority
     
     /* Initialize the RC and TX buffers */
     Serial_RC_HEAD = Serial_RC_TAIL = Serial_TX_HEAD = Serial_TX_TAIL = 0;
@@ -133,7 +133,7 @@ unsigned char Serial_RC_ReadBuffer() {
 	unsigned char data;
 	
 	/* Temporarily disable the interrupts */
-	Serial_INT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
 	data = Serial_RC_BUFFER[Serial_RC_TAIL];
@@ -142,7 +142,7 @@ unsigned char Serial_RC_ReadBuffer() {
 	Serial_RC_TAIL = Serial_IncrementIndex(Serial_RC_TAIL, Serial_MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
-	Serial_INT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 	
 	return data;
 }
@@ -197,7 +197,7 @@ void Serial_RC_Clear() {
 *******************************************************************************/
 void Serial_TX_WriteBuffer(unsigned char data) {
 	/* Temporarily disable interrupts */
-	Serial_INT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
 	Serial_TX_BUFFER[Serial_TX_HEAD] = data;
@@ -209,8 +209,8 @@ void Serial_TX_WriteBuffer(unsigned char data) {
 	if (Serial_TX_HEAD == Serial_TX_TAIL) { Serial_TX_TAIL = Serial_IncrementIndex(Serial_TX_TAIL, Serial_MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
-	Serial_INTEN_TX = 1;
-	Serial_INT_GLOBAL = 1;
+	Serial_TXINT_ENABLE = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
@@ -241,7 +241,7 @@ void Serial_TX_WriteBufferMultiple(unsigned char* data) {
 *******************************************************************************/
 void Serial_TX_SendByte() {
 	/* Temporarily disable interrupts */
-	Serial_INT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
 	Serial_TX_REGISTER = Serial_TX_BUFFER[Serial_TX_TAIL];
@@ -250,7 +250,7 @@ void Serial_TX_SendByte() {
 	Serial_TX_TAIL = Serial_IncrementIndex(Serial_TX_TAIL, Serial_MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
-	Serial_INT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
@@ -262,12 +262,12 @@ void Serial_TX_SendByte() {
 *******************************************************************************/
 unsigned char Serial_TX_isDataAvailable() {
 	/* If data is available, enable the TX interrupts */
-	if (Serial_TX_HEAD != Serial_TX_TAIL) { Serial_INTEN_TX = 1; }
+	if (Serial_TX_HEAD != Serial_TX_TAIL) { Serial_TXINT_ENABLE = 1; }
 	
 	/* If data is not available, disable the TX interrupt */
-	else { Serial_INTEN_TX = 0; }
+	else { Serial_TXINT_ENABLE = 0; }
 	
-	return Serial_INTEN_TX;
+	return Serial_TXINT_ENABLE;
 }
 
 /***************************************************************************//**
@@ -306,14 +306,14 @@ void Serial_ClearAll() {
 *******************************************************************************/
 void Serial_ISR() {
     /* If there is data in the RC register and the RC interrupts are enabled */
-	if (Serial_RC_FULL && Serial_INTEN_RC) {
+	if (Serial_RC_FULL && Serial_RCINT_ENABLE) {
         /* Read the byte on the RC register and write it to the RC buffer */
 		Serial_RC_ReadByte();
 		if (Serial_RC_FULL) { Serial_RC_ReadByte(); }
 	}
 	
     /* If the TX register is available and the TX interrupts are enabled */
-	if (Serial_TX_EMPTY && Serial_INTEN_TX) {
+	if (Serial_TX_EMPTY && Serial_TXINT_ENABLE) {
         /* If data is available to be transmitted */
 		if (Serial_TX_isDataAvailable()) {
             /* Write data from the TX buffer to the TX register*/
@@ -331,13 +331,13 @@ void Serial_ISR_SimpleResponse() {
     unsigned char data;
     
     /* If the RC register is full and we have RC interrupts enabled */
-    if (Serial_RC_FULL && Serial_INTEN_RC) {
+    if (Serial_RC_FULL && Serial_RCINT_ENABLE) {
         
         /* Read data from the RC register */
         data = Serial_RC_REGISTER;
         
         /* If the TX register is empty and we have TX interrupts enabled, send out the received data */
-        if (Serial_TX_EMPTY && Serial_INTEN_TX) { Serial_TX_REGISTER = data; }
+        if (Serial_TX_EMPTY && Serial_TXINT_ENABLE) { Serial_TX_REGISTER = data; }
     }
     
     /* Clear the interrupt flags */

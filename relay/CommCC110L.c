@@ -77,11 +77,6 @@ unsigned char CommCC110L_Initialize() {
 	CommCC110L_DOUT_DIR = 0; // DIN on CC110L is output from PIC
     
 	CommCC110L_CS_DIR = 0; // CS on CC110L is output from PIC
-    
-    /* Define the global interrupt bits */
-    CommCC110L_GLOBALINT_PRIORITY   = 1;	
-    CommCC110L_GLOBALINT_GLOBAL     = 1;
-    CommCC110L_GLOBALINT_PERIPHERAL = 1;
 
     /* Define the MSSP 2 Interrupt bits */
     CommCC110L_SSPINT_ENABLE   = 1;

@@ -23,7 +23,7 @@
 /******************************************************************************/
 void main() {
 	unsigned char status;
-    unsigned char dummy[2] = {'a','b'};
+    unsigned char dummy[2] = {0x51,'b'};
     unsigned char channels[2] = {0, 0};
     unsigned long i;
     
@@ -41,6 +41,9 @@ void main() {
 	channels[1] = 0b00000000; // device 2 channels
 	status = ADS1298_Initialize(channels);
 	
+    /* Initialize the SPI communication */
+    status &= CC110L_Initialize();
+    
 	/* Initialize the Logic Analyzer */
 	status &= LogicAnalyzer_Initialize();
     

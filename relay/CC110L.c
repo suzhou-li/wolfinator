@@ -3,6 +3,7 @@
 /******************************************************************************/
 #include "CommCC110L.h"
 #include "CC110L.h"
+#include "Serial.h"
 
 /******************************************************************************/
 /* DEFINITIONS  															  */
@@ -32,7 +33,11 @@ unsigned char SSP_TX_HEAD, SSP_TX_TAIL, SSP_RC_HEAD, SSP_RC_TAIL;
  * @return None.
 *******************************************************************************/
 unsigned char CC110L_Initialize() {
-    unsigned char i;
+    unsigned char status, i;
+    
+    /* Initialize the SPI communication */
+    status = CommCC110L_Initialize();
+    if (!status) { return 0; }
     
     /* Initialize the RC and TX buffers */
     SSP_RC_HEAD = SSP_RC_TAIL = SSP_TX_HEAD = SSP_TX_TAIL = 0;
@@ -90,7 +95,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	unsigned char data;
 	
 	/* Temporarily disable the interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Read the data from the end of the buffer */
 	data = SSP_RC_BUFFER[SSP_RC_TAIL];
@@ -99,7 +104,7 @@ unsigned char CC110L_RC_ReadBuffer() {
 	SSP_RC_TAIL = CC110L_IncrementIndex(SSP_RC_TAIL, SSP_MAX_RC_SIZE);
 	
 	/* Re-enable the interrupt */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 	
 	return data;
 }
@@ -159,7 +164,7 @@ void CC110L_RC_Clear() {
 *******************************************************************************/
 void CC110L_TX_WriteBuffer(unsigned char data) {
 	/* Temporarily disable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data to the current head of the buffer */
 	SSP_TX_BUFFER[SSP_TX_HEAD] = data;
@@ -171,7 +176,7 @@ void CC110L_TX_WriteBuffer(unsigned char data) {
 	if (SSP_TX_HEAD == SSP_TX_TAIL) { SSP_TX_TAIL = CC110L_IncrementIndex(SSP_TX_TAIL, SSP_MAX_RC_SIZE); }
 	
 	/* Re-enable the interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**
@@ -202,7 +207,7 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 *******************************************************************************/
 void CC110L_TX_SendByte() {
 	/* Temporarily disable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 0;
+	INTERRUPT_GLOBAL = 0;
 	
 	/* Write the data at the end of the transmit buffer to the transmit register */
 	CommCC110L_Write(&SSP_TX_BUFFER[SSP_TX_TAIL], 1);
@@ -211,7 +216,7 @@ void CC110L_TX_SendByte() {
 	SSP_TX_TAIL = CC110L_IncrementIndex(SSP_TX_TAIL, SSP_MAX_TX_SIZE);
 	
 	/* Re-enable interrupts */
-	CommCC110L_GLOBALINT_GLOBAL = 1;
+	INTERRUPT_GLOBAL = 1;
 }
 
 /***************************************************************************//**

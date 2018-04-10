@@ -69,18 +69,25 @@ unsigned char CommCC110L_Initialize() {
 
 	/* Properly configure the SPI/communication pins */
 	
-	CommCC110L_SCLK_DIR = 0; // SCLK on CC110L is output
+	CommCC110L_SCLK_DIR   = 1; // SCLK on CC110L is input
+    CommCC110L_SCLK_ANSEL = 0; // clear analog select bit for clock input
     
 	CommCC110L_DIN_DIR   = 1; // DOUT on CC110L is input into the PIC    
-	CommCC110L_DIN_ANSEL = 0; // clear analog select bit for PIC input
+	CommCC110L_DIN_ANSEL = 0; // clear analog select bit for data input
 
 	CommCC110L_DOUT_DIR = 0; // DIN on CC110L is output from PIC
     
-	CommCC110L_CS_DIR = 0; // CS on CC110L is output from PIC
-
+	CommCC110L_CS_DIR   = 1; // CS on CC110L is output from PIC
+    CommCC110L_CS_ANSEL = 0; // clear analog select bit for slave select input
+    
+    /* Define the global interrupt bits */
+    INTERRUPT_PRIORITY   = 0;
+    INTERRUPT_GLOBAL     = 0;
+    INTERRUPT_PERIPHERAL = 0;
+    
     /* Define the MSSP 2 Interrupt bits */
-    CommCC110L_SSPINT_ENABLE   = 1;
-    CommCC110L_SSPINT_PRIORITY = 1;
+    CommCC110L_SSPINT_ENABLE   = 0;
+    CommCC110L_SSPINT_PRIORITY = 0;
     CommCC110L_SSPINTERRUPT    = 0;
     
 	return 1;

@@ -66,9 +66,9 @@
 #define CommCC110L_DATABUFFER               SSP2BUF
 
 /* Define the interrupt bits */
-#define CommCC110L_GLOBALINT_PRIORITY       RCONbits.IPEN
-#define CommCC110L_GLOBALINT_GLOBAL			INTCONbits.GIEH
-#define CommCC110L_GLOBALINT_PERIPHERAL     INTCONbits.PEIE
+#define INTERRUPT_PRIORITY                  RCONbits.IPEN
+#define INTERRUPT_GLOBAL                    INTCONbits.GIEH
+#define INTERRUPT_PERIPHERAL                INTCONbits.PEIE
 
 /* Define the MSSP bits on the PIR (Peripheral Interrupt Request) Register */
 #define CommCC110L_SSPINTERRUPT             PIR3bits.SSP2IF // Synchronous Serial Port 2 Interrupt Flag bit
@@ -81,7 +81,7 @@
 
 /* Define the pins of the SPI for the CC110L in the PIC */
 #define CommCC110L_SCLK_DIR                 TRISDbits.RD0       // SCLK on RC3 direction
-#define CommCC110L_SCLK_PIN                 LATDbits.LATD0      // PIC SCLK pin
+#define CommCC110L_SCLK_ANSEL               ANSELDbits.ANSD0    // PIC SCLK pin
 
 #define CommCC110L_DIN_DIR                  TRISDbits.RD1       // Into implant from relay
 #define CommCC110L_DIN_ANSEL                ANSELDbits.ANSD1
@@ -89,8 +89,7 @@
 #define CommCC110L_DOUT_DIR                 TRISDbits.RD4       // Out of implant to relay
 
 #define CommCC110L_CS_DIR                   TRISDbits.RD3       // PIC CS input and output
-#define CommCC110L_CS_DPIN                  LATDbits.LATD3
-#define CommCC110L_CS_APIN                  PORTDbits.RD3
+#define CommCC110L_CS_ANSEL                 ANSELDbits.ANSD3
 
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */

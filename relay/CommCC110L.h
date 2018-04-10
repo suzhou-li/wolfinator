@@ -76,7 +76,6 @@
 
 /* Define the pins of the SPI for the CC110L in the PIC */
 #define CommCC110L_SCLK_DIR                 TRISCbits.RC3       // SCLK on RC3 direction
-#define CommCC110L_SCLK_PIN                 LATCbits.LATC3      // PIC SCLK pin
 
 #define CommCC110L_DIN_DIR                  TRISCbits.RC4       // Into implant from relay
 #define CommCC110L_DIN_ANSEL                ANSELCbits.ANSC4
@@ -85,7 +84,6 @@
 
 #define CommCC110L_CS_DIR                   TRISAbits.RA5       // PIC CS input and output
 #define CommCC110L_CS_DPIN                  LATAbits.LATA5
-#define CommCC110L_CS_APIN                  PORTAbits.RA5
 
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */
