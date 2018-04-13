@@ -145,53 +145,31 @@ unsigned char changeMode(unsigned char cmd, unsigned char* data) {
 					ADS1298_SetChannels(data);
 					mode = mode;
 			}
-		
+			
 		/* Mode 0x03
-		 * Device is converting data. No data is being collected.
+		 * Device is converting data. Data is being collected.
 		 */
 		case 0x03:
 			switch (cmd) {
-				/* Stop data conversions */
+				/* Stop collecting data */
 				case 0x00:
 					mode = 0x02;
 					
-				/* Start collecting data */
+				/* Send collected data to the relay box */
 				case 0x01:
 					mode = 0x04;
 				
-				/* Turn off all channels */
-				case 0x02:
-					mode = 0x01;
-				
 				/* Change the channel */
 				default:
 					mode = mode;
 			}
 		
-		/* Mode 0x04
-		 * Device is converting data. Data is being collected.
-		 */
-		case 0x04:
-			switch (cmd) {
-				/* Stop collecting data */
-				case 0x00:
-					mode = 0x03;
-					
-				/* Send collected data to the relay box */
-				case 0x01:
-					mode = 0x05;
-				
-				/* Change the channel */
-				default:
-					mode = mode;
-			}
-		
-		/* Mod 0x05
+		/* Mod 0x04
 		 * Device is sending data out. Currently, PIC to PIC communication.
 		 */
-		case 0x05:
+		case 0x04:
 			if (cmd) {
-				mode = 0x04;
+				mode = 0x03;
 			} else {
 				mode = mode;
 			}

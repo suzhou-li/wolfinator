@@ -1,4 +1,4 @@
-/******************************************************************************/
+	/******************************************************************************/
 /* INCLUDE FILES															  */
 /******************************************************************************/
 #include "CommCC110L.h"
@@ -114,7 +114,7 @@ unsigned char CC110L_RC_ReadBuffer() {
  * 
  * @return None.
 *******************************************************************************/
-void CC110L_RC_ReadByte() {
+unsigned char CC110L_RC_ReadByte() {
     unsigned char data;
     
     /* Read a byte of data from the SPI */
@@ -123,8 +123,7 @@ void CC110L_RC_ReadByte() {
 	/* Read the data from the RC register */
 	CC110L_RC_WriteBuffer(data);
 	
-    /* REMOVE THIS LINE OF CODE. Testing used to send characters to the transmit buffer */
-    CC110L_TX_WriteBuffer(CC110L_RC_ReadBuffer());
+	return data;
 }
 
 /***************************************************************************//**
@@ -182,7 +181,7 @@ void CC110L_TX_WriteBuffer(unsigned char data) {
  *
  * @param None.
  * 
- * @return 1 - transfer of data successful, 0 - transfer of data unsuccessful.
+ * @return None.
 *******************************************************************************/
 void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 	/* Iterate through the data */
@@ -197,7 +196,45 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 }
 
 /***************************************************************************//**
- * @brief Outputs a signal byte to the Serial communication line.
+ * @brief Puts one frame of data into the transmit buffer.
+ *
+ * @param None.
+ * 
+ * @return None.
+*******************************************************************************/
+void CC110L_TX_WriteBufferFrame(unsigned char* data, 
+								unsigned char frameCnt, 
+								unsigned char frameSize) {
+	unsigned char i;
+	
+	/* Temporarily disable interrupts */
+	INTERRUPT_GLOBAL = 0;
+	
+	/* Say that data is not ready */
+	CommCC110L_DRDY_NOT = 1;
+	
+	/* Iterate through the bytes in the frame */
+	for (i = 0; i < frameCnt * frameSize; i = i + 1) {
+		
+		/* Write the data to the current head of the buffer */
+		TX_BUFFER[TX_HEAD] = data;
+		
+		/* Increment the head of the buffer */
+		TX_HEAD = CC110L_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
+		
+		/* If you have reached the tail, increment the tail of the buffer */
+		if (TX_HEAD == TX_TAIL) { TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
+	}
+	
+	/* Set the DRDY to data ready */
+	CommCC110L_DRDY_NOT = 0;
+	
+	/* Re-enable the interrupts */
+	INTERRUPT_GLOBAL = 1;
+}
+
+/***************************************************************************//**
+ * @brief Outputs a byte of data to the Serial communication line.
  *
  * @param None.
  * 
@@ -218,6 +255,46 @@ void CC110L_TX_SendByte() {
 }
 
 /***************************************************************************//**
+ * @brief Outputs a frame of data to the Serial communication line.
+ *
+ * @param None.
+ * 
+ * @return None.
+*******************************************************************************/
+void CC110L_TX_SendFrames(unsigned char frameCnt, unsigned char frameSize) {
+	unsigned char i, j;
+	
+	/* Temporarily disable interrupts */
+	INTERRUPT_GLOBAL = 0;
+	
+	/* Set the DRDY to data not ready */
+	CommCC110L_DRDY_NOT = 1;
+	
+	/* Iterate through the frames */
+	for (i = 0; i < frameCnt; i = i + 1) {
+		
+		/* Iterate through the bytes in the frame */
+		for (j = 0; j < frameSize; j = j + 1) {
+			
+			/* Write the data at the end of the transmit buffer to the transmit register */
+			CommCC110L_Write(&TX_BUFFER[TX_TAIL], 1);
+			
+			/* Increment the tail of the buffer */
+			TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_TX_SIZE);
+			
+			/* If you are overflowing, no data is available */
+			if (!CC110L_TX_isDataAvailable()) {
+				INTERRUPT_GLOBAL = 1;
+				return;
+			}
+		}
+	}
+	
+	/* Re-enable interrupts */
+	INTERRUPT_GLOBAL = 1;
+}
+
+/***************************************************************************//**
  * @brief Checks if there is data available to be transmitted on the TX buffer.
  *
  * @param None.
@@ -225,11 +302,7 @@ void CC110L_TX_SendByte() {
  * @return 1 - data is available to be transmitted, 0 - data is not available..
 *******************************************************************************/
 unsigned char CC110L_TX_isDataAvailable() {
-	/* If data is available, enable the TX interrupts */
-	if (TX_HEAD != TX_TAIL) { return 1; }
-	
-	/* If data is not available, disable the TX interrupt */
-	else { return 0; }
+	return (TX_HEAD != TX_TAIL)
 }
 
 /***************************************************************************//**

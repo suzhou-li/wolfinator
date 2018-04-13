@@ -91,6 +91,9 @@
 #define CommCC110L_CS_DIR                   TRISDbits.RD3       // PIC CS input and output
 #define CommCC110L_CS_ANSEL                 ANSELDbits.ANSD3
 
+#define CommCC110L_DRDY_DIR					TRISAbits.RA5
+#define CommCC110L_DRDY_NOT					LATAbits.LATA5
+
 /******************************************************************************/
 /* FUNCTIONS PROTOTYPES														  */
 /******************************************************************************/
@@ -100,10 +103,10 @@ unsigned char CommCC110L_Initialize();
 
 /* Writes data to SPI. */
 unsigned char CommCC110L_Write(unsigned char* data,
-								unsigned char bytesNumber);
+							   unsigned char bytesNumber);
 
 /* Reads data from SPI. */
 unsigned char CommCC110L_Read(unsigned char* data,
-							   unsigned char bytesNumber);
+							  unsigned char bytesNumber);
 
 #endif	// CommCC110L_H

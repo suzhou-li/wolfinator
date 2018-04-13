@@ -80,6 +80,9 @@ unsigned char CommCC110L_Initialize() {
 	CommCC110L_CS_DIR   = 1; // CS on CC110L is output from PIC
     CommCC110L_CS_ANSEL = 0; // clear analog select bit for slave select input
     
+	CommCC110L_DRDY_DIR = 0; // DRDY from PIC is output
+	CommCC110L_DRDY_NOT = 1; // DRDY is not ready initially
+	
     /* Define the global interrupt bits */
     INTERRUPT_PRIORITY   = 1;
     INTERRUPT_GLOBAL     = 1;
@@ -102,7 +105,7 @@ unsigned char CommCC110L_Initialize() {
  * @return Number of written bytes.
 *******************************************************************************/
 unsigned char CommCC110L_Write(unsigned char* data,
-                                unsigned char bytesNumber)
+                               unsigned char bytesNumber)
 {
     unsigned char i;
     
@@ -124,7 +127,7 @@ unsigned char CommCC110L_Write(unsigned char* data,
  * @return Number of read bytes.
 *******************************************************************************/
 unsigned char CommCC110L_Read(unsigned char* data,
-                               unsigned char bytesNumber)
+                              unsigned char bytesNumber)
 {
     unsigned char i;
     

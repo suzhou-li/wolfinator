@@ -386,8 +386,16 @@ void CC110L_TX_WriteBuffer(unsigned char data);
 /* Stores multiple new characters to the TX buffer */
 void CC110L_TX_WriteBufferMultiple(unsigned char* data);
 
+/* Stores a frame of data to the TX buffer */
+void CC110L_TX_WriteBufferFrame(unsigned char* data, 
+								unsigned char frameCnt, 
+								unsigned char frameSize);
+
 /* Sends out a byte on the TX register */
 void CC110L_TX_SendByte();
+
+/* Sends out frames of data on the TX register */
+void CC110L_TX_SendFrames(unsigned char frameCnt, unsigned char frameSize);
 
 /* Checks if data is available on the TX buffer */
 unsigned char CC110L_TX_isDataAvailable();
