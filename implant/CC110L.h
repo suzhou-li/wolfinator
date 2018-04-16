@@ -1,6 +1,6 @@
 /***************************************************************************//**
  *   @file   CC110L.h
- *   @brief  Header file of CC110L driver.
+ *   @brief  Header file of the CC110L driver.
  *   @author Suzhou Li (suzhou.li@duke.edu)
 *******************************************************************************/
 

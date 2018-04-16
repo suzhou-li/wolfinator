@@ -21,11 +21,22 @@ static unsigned long frameSize2;
 /*****************************************************************************/
 
 /***************************************************************************//**
- * @brief Writes a single opcode to the ADS1298.
+ * @brief	Gets the total frame size.
  * 
- * @param writeVal - Char denoting the opcode you want to write.
+ * @param	None.
  * 
- * @return None.
+ * @return	Total frame size (sum of the frame sizes from both devices).
+*******************************************************************************/
+unsigned long ADS1298_GetFrameSize() {
+	return (frameSize1 + frameSize2);
+}
+
+/***************************************************************************//**
+ * @brief	Writes a single opcode to the ADS1298.
+ * 
+ * @param	writeVal - Char denoting the opcode you want to write.
+ * 
+ * @return	None.
 *******************************************************************************/
 void ADS1298_WriteSingleOpCode(unsigned char writeVal) {
 	CommADS1298_Write(&writeVal, 1);
@@ -98,19 +109,19 @@ void ADS1298_ReadRegisters(unsigned char device,
 }
 
 /***************************************************************************//**
- * @brief Goes through the power-up sequencing of the device. Before device
- *        power up, all digital and analog inputs must be low. At the time of 
- *        power up, keep all these signals low until the power supplies have
- *        stabilized. Allow time for the supply voltages to reach their final
- *        to reach their final value, and then begin supplying the master 
- *        clock signal to the CLK pin. Wait for time t_POR (wait after power 
- *        up until reset, 2^18 clock cycles), then transmit a reset pulse. 
- *        Issue the reset after t_POR or after VCAP1 voltage is greater than 
- *        1.1 V depends on RC time constant). 
+ * @brief	Goes through the power-up sequencing of the device. Before device
+ *          power up, all digital and analog inputs must be low. At the time of 
+ *          power up, keep all these signals low until the power supplies have
+ *          stabilized. Allow time for the supply voltages to reach their final
+ *          to reach their final value, and then begin supplying the master 
+ *          clock signal to the CLK pin. Wait for time t_POR (wait after power 
+ *          up until reset, 2^18 clock cycles), then transmit a reset pulse. 
+ *          Issue the reset after t_POR or after VCAP1 voltage is greater than 
+ *          1.1 V depends on RC time constant). 
  * 
- * @param None.
+ * @param	None.
  * 
- * @return 1 - power-up success, 0 - power-up failed.
+ * @return	1 - power-up success, 0 - power-up failed.
 *******************************************************************************/
 unsigned char ADS1298_PowerUp() {
 	unsigned int i = 0;
@@ -244,6 +255,83 @@ void ADS1298_SetChannels(unsigned char* channels) {
 }
 
 /***************************************************************************//**
+ * @brief	Starts continuous data conversions.
+ * 
+ * @param	None.
+ * 
+ * @return	None.
+*******************************************************************************/
+void ADS1298_StartConversion() {
+	/* Issue the RDATAC command to read data continuously */
+    CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_RDATAC);
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
+}
+
+/***************************************************************************//**
+ * @brief	Stops continuous data conversions.
+ * 
+ * @param	None.
+ * 
+ * @return	None.
+*******************************************************************************/
+void ADS1298_StopConversion() {
+	/* Issue the SDATAC opcode to stop reading data */
+    CommADS1298_CS1_PIN = 0;
+    CommADS1298_CS2_PIN = 0;
+    ADS1298_WriteSingleOpCode(ADS1298_SDATAC);
+    CommADS1298_CS1_PIN = 1;
+	CommADS1298_CS2_PIN = 1;
+}
+
+/***************************************************************************//**
+ * @brief	Reads a single frame of data from the implant.
+ * 
+ * @param	pDataBuffer - Pointer to the array storing the streamed data.
+ * 
+ * @return	None.
+*******************************************************************************/
+void ADS1298_ReadFrame(unsigned char* pDataBuffer) {
+	/* Wait for the DRDY_NOT line to go low */
+	while (ADS1298_DRDY1_NOT || ADS1298_DRDY2_NOT);
+	
+	/* If frame size for device 1 is 0, do not read from device 1 */
+	if (frameSize1 != 0) { // device 1
+
+		/* Bring the CS pin low */
+		CommADS1298_CS1_PIN = 0;
+
+		/* Read all the data in the frame */
+		CommADS1298_Read(pDataBuffer, 3); // read the header
+		CommADS1298_Read(pDataBuffer, frameSize1 - 3); // overwrite the header
+
+		/* Increment the address of pDataBuffer */
+		pDataBuffer = pDataBuffer + (frameSize1 - 3);
+
+		/* Bring the CS pin high */
+		CommADS1298_CS1_PIN = 1;
+
+	/* If frame size for device 2 is 0, do not read from device 2 */
+	} else if (frameSize2 != 0) { // device 2
+
+		/* Bring the CS pin low */
+		CommADS1298_CS2_PIN = 0;
+
+		/* Read all the data in the frame */
+		CommADS1298_Read(pDataBuffer, 3); // read the header
+		CommADS1298_Read(pDataBuffer, frameSize2 - 3); // overwrite the header
+
+		/* Increment the address of pDataBuffer */
+		pDataBuffer = pDataBuffer + (frameSize2 - 3);
+
+		/* Bring the CS pin high */
+		CommADS1298_CS2_PIN = 1;
+	}
+}
+
+/***************************************************************************//**
  * @brief	Streams electrogram data from the ADS1298. You could use the START
  *          pin, but using the START opcode means less wires are needed.
  * 
@@ -256,10 +344,11 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt) {
 	unsigned char i;
 	
+	/* Bring the START pin high to start converting data */
+    ADS1298_START_PIN = 1;
+	
     /* If you just want to read a single frame of data */
     if (frameCnt == 1) { 
-        /* Issue the START opcode to start converting data */
-        ADS1298_START_PIN = 1;
         
         /* If frame size for device 1 is 0, do not read from device 1 */
         if (frameSize1 != 0) {
@@ -305,9 +394,6 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
         ADS1298_START_PIN = 0;
         return;
     }
-    
-    /* Bring the START pin high to start converting data */
-    ADS1298_START_PIN = 1;
     
     /* Issue the RDATAC command to read data continuously */
     CommADS1298_CS1_PIN = 0;

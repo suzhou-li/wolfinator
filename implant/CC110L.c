@@ -1,6 +1,13 @@
-	/******************************************************************************/
+/***************************************************************************//**
+ *   @file   CC110L.c
+ *   @brief  Implementation of the CC110L Driver.
+ *   @author Suzhou Li (suzhou.li@duke.edu)
+*******************************************************************************/
+
+/******************************************************************************/
 /* INCLUDE FILES															  */
 /******************************************************************************/
+#include "ADS1298.h"
 #include "CommCC110L.h"
 #include "CC110L.h"
 
@@ -54,7 +61,8 @@ unsigned char CC110L_Initialize() {
  * 
  * @return Incremented index value.
 *******************************************************************************/
-unsigned char CC110L_IncrementIndex(unsigned char idx, unsigned char max) {
+unsigned char CC110L_IncrementIndex(unsigned char idx, 
+									unsigned char max) {
 	if (++idx == max) { idx = 0; } // increment index; and if buffer end reached, start from beginning
 	return idx; // return the index
 }
@@ -196,7 +204,7 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 }
 
 /***************************************************************************//**
- * @brief Puts one frame of data into the transmit buffer.
+ * @brief Puts one frame of ADS1298 data into the transmit buffer.
  *
  * @param None.
  * 
@@ -205,7 +213,7 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
 void CC110L_TX_WriteBufferFrame(unsigned char* data, 
 								unsigned char frameCnt, 
 								unsigned char frameSize) {
-	unsigned char i;
+	unsigned char i, j;
 	
 	/* Temporarily disable interrupts */
 	INTERRUPT_GLOBAL = 0;
@@ -213,17 +221,21 @@ void CC110L_TX_WriteBufferFrame(unsigned char* data,
 	/* Say that data is not ready */
 	CommCC110L_DRDY_NOT = 1;
 	
-	/* Iterate through the bytes in the frame */
-	for (i = 0; i < frameCnt * frameSize; i = i + 1) {
+	/* Iterate through the frames */
+	for (i = 0; i < frameCnt; i = i + 1) {
 		
 		/* Write the data to the current head of the buffer */
-		TX_BUFFER[TX_HEAD] = data;
+		ADS1298_ReadData(TX_BUFFER + TX_HEAD, frameSize);
 		
-		/* Increment the head of the buffer */
-		TX_HEAD = CC110L_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
+		/* Iterate through the bytes in the buffer */
+		for (j = 0; j < frameSize; j = j + 1) {
+			
+			/* Increment the head of the buffer */
+			TX_HEAD = CC110L_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
+		}
 		
 		/* If you have reached the tail, increment the tail of the buffer */
-		if (TX_HEAD == TX_TAIL) { TX_TAIL = CC110L_IncrementIndex(TX_TAIL, MAX_RC_SIZE); }
+		if (TX_HEAD + frameSize > 
 	}
 	
 	/* Set the DRDY to data ready */

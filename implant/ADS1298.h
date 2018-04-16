@@ -391,6 +391,6 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
 unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
 					  
 /* Initializes the ADS1298 */
-unsigned char ADS1298_Initialize(unsigned char* channels);
+unsigned long ADS1298_Initialize(unsigned char* channels);
 
 #endif /* ADS1298_H */
