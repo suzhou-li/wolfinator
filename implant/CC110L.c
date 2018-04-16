@@ -7,15 +7,14 @@
 /******************************************************************************/
 /* INCLUDE FILES															  */
 /******************************************************************************/
-#include "ADS1298.h"
 #include "CommCC110L.h"
 #include "CC110L.h"
 
 /******************************************************************************/
 /* DEFINITIONS  															  */
 /******************************************************************************/
-#define MAX_TX_SIZE     32
-#define MAX_RC_SIZE     32
+#define MAX_TX_SIZE     64
+#define MAX_RC_SIZE     64
 
 /******************************************************************************/
 /* GLOBAL VARIABLES															  */
@@ -210,10 +209,9 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data) {
  * 
  * @return None.
 *******************************************************************************/
-void CC110L_TX_WriteBufferFrame(unsigned char* data, 
-								unsigned char frameCnt, 
+void CC110L_TX_WriteBufferFrame(unsigned char* data,  
 								unsigned char frameSize) {
-	unsigned char i, j;
+	unsigned char dummyIdx, i;
 	
 	/* Temporarily disable interrupts */
 	INTERRUPT_GLOBAL = 0;
@@ -221,22 +219,11 @@ void CC110L_TX_WriteBufferFrame(unsigned char* data,
 	/* Say that data is not ready */
 	CommCC110L_DRDY_NOT = 1;
 	
-	/* Iterate through the frames */
-	for (i = 0; i < frameCnt; i = i + 1) {
-		
-		/* Write the data to the current head of the buffer */
-		ADS1298_ReadData(TX_BUFFER + TX_HEAD, frameSize);
-		
-		/* Iterate through the bytes in the buffer */
-		for (j = 0; j < frameSize; j = j + 1) {
-			
-			/* Increment the head of the buffer */
-			TX_HEAD = CC110L_IncrementIndex(TX_HEAD, MAX_TX_SIZE);
-		}
-		
-		/* If you have reached the tail, increment the tail of the buffer */
-		if (TX_HEAD + frameSize > 
-	}
+	/* Check if space is available in the transmit buffer */
+    dummyIdx = TX_HEAD;
+    for (i = 0; i < frameSize; i = i + 1) {
+        dummyIdx = CC110L_IncrementIndex(dummyIdx, MAX_TX_SIZE);
+    }
 	
 	/* Set the DRDY to data ready */
 	CommCC110L_DRDY_NOT = 0;
@@ -314,7 +301,7 @@ void CC110L_TX_SendFrames(unsigned char frameCnt, unsigned char frameSize) {
  * @return 1 - data is available to be transmitted, 0 - data is not available..
 *******************************************************************************/
 unsigned char CC110L_TX_isDataAvailable() {
-	return (TX_HEAD != TX_TAIL)
+	return (TX_HEAD != TX_TAIL);
 }
 
 /***************************************************************************//**

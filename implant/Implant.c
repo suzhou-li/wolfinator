@@ -7,21 +7,37 @@
 /*****************************************************************************/
 /* INCLUDE FILES															 */
 /*****************************************************************************/
+#include "ADS1298.h"
 #include "Implant.h"
 
 /*****************************************************************************/
 /* VARIABLES    															 */
 /*****************************************************************************/
-static unsigned long frameSize;
+static unsigned char frameSize = 0;
 unsigned char mode;
 
 /*****************************************************************************/
 /* FUNCTIONS																 */
 /*****************************************************************************/
 
+unsigned char Implant_Initialize(unsigned char* channels) {
+    unsigned char status = 0;
+    
+    /* Initialize the ADS1298 */
+	status = ADS1298_Initialize(channels);
+	frameSize = ADS1298_GetFrameSize();
+    
+    /* Initialize the SPI communication */
+    status &= CC110L_Initialize();
+    
+	/* Initialize the Logic Analyzer */
+	status &= LogicAnalyzer_Initialize();
+    
+    return status;
+}
 
 void Implant_StreamData(unsigned char frameCnt) {
-	unsigned char data[frameSize];
+	unsigned char data[50];
 	unsigned char i;
 	
 	/* Start converting data and reading it */

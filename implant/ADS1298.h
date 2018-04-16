@@ -383,14 +383,26 @@ void ADS1298_ComputeFrameSize();
 /* Sets the channels for the ADS1298 chip */
 void ADS1298_SetChannels(unsigned char* channels);
 
+/* Start data conversions */
+void ADS1298_StartConversion();
+
+/* Stop data conversions */
+void ADS1298_StopConversion();
+
+/* Read a single frame of data */
+void ADS1298_ReadFrame(unsigned char* pDataBuffer);
+
 /* Reads data from the ADS1298 */
 void ADS1298_ReadData(unsigned char* pDataBuffer,
 					  unsigned long frameCnt);
 
+/* Gets the total frame size */
+unsigned long ADS1298_GetFrameSize();
+
 /* Sets the registers for testing */
 unsigned char ADS1298_RegistersForTesting(unsigned char* channels);
-					  
+
 /* Initializes the ADS1298 */
-unsigned long ADS1298_Initialize(unsigned char* channels);
+unsigned char ADS1298_Initialize(unsigned char* channels);
 
 #endif /* ADS1298_H */

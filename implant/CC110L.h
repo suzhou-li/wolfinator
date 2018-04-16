@@ -368,7 +368,7 @@ void CC110L_RC_WriteBuffer(unsigned char data);
 unsigned char CC110L_RC_ReadBuffer();
 
 /* Reads a byte of data from the RC register */
-void CC110L_RC_ReadByte();
+unsigned char CC110L_RC_ReadByte();
 
 /* Checks if data is available on the RC buffer */
 unsigned char CC110L_RC_isDataAvailable();

@@ -19,6 +19,8 @@
 /* FUNCTIONS PROTOTYPES														  */
 /******************************************************************************/
 
+unsigned char Implant_Initialize(unsigned char* channels);
+
 void Implant_StreamData(unsigned char frameCnt);
 
 unsigned char Implant_ChangeMode(unsigned char cmd, unsigned char* data);

@@ -13,23 +13,12 @@
 /*****************************************************************************/
 /* CONSTANTS    															 */
 /*****************************************************************************/
-static unsigned long frameSize1;
-static unsigned long frameSize2;
+static unsigned char frameSize1;
+static unsigned char frameSize2;
 
 /*****************************************************************************/
 /* FUNCTIONS																 */
 /*****************************************************************************/
-
-/***************************************************************************//**
- * @brief	Gets the total frame size.
- * 
- * @param	None.
- * 
- * @return	Total frame size (sum of the frame sizes from both devices).
-*******************************************************************************/
-unsigned long ADS1298_GetFrameSize() {
-	return (frameSize1 + frameSize2);
-}
 
 /***************************************************************************//**
  * @brief	Writes a single opcode to the ADS1298.
@@ -452,6 +441,17 @@ void ADS1298_ReadData(unsigned char* pDataBuffer,
     
     /* Bring the START pin low to stop the data conversions */
     ADS1298_START_PIN = 0;
+}
+
+/***************************************************************************//**
+ * @brief	Gets the total frame size.
+ * 
+ * @param	None.
+ * 
+ * @return	Total frame size (sum of the frame sizes from both devices).
+*******************************************************************************/
+unsigned long ADS1298_GetFrameSize() {
+	return (frameSize1 + frameSize2);
 }
 
 /***************************************************************************//**
