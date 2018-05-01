@@ -388,7 +388,6 @@ void CC110L_TX_WriteBufferMultiple(unsigned char* data);
 
 /* Stores a frame of data to the TX buffer */
 void CC110L_TX_WriteBufferFrame(unsigned char* data, 
-								unsigned char frameCnt, 
 								unsigned char frameSize);
 
 /* Sends out a byte on the TX register */

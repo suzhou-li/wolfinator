@@ -35,7 +35,7 @@ void InterruptVectorHigh() {
 }
 
 void InterruptHigh() {
-    CC110L_ISR();
+    //CC110L_ISR();
 }
 
 /******************************************************************************/
@@ -62,19 +62,19 @@ void main() {
     
 	/* Keep reading these registers */
 	if (status) {
-		while (1) {
+		while (0) {
             
             /* Read register data */
-            //ADS1298_ReadRegisters(1, ADS1298_ID, 1, dummy);
-            //ADS1298_ReadRegisters(2, ADS1298_ID, 1, dummy);
+            //ADS1298_ReadRegisters(1, ADS1298_ID, 12, dummy);
+            //ADS1298_ReadRegisters(2, ADS1298_ID, 12, dummy);
             
             /* Read the test data */
             //ADS1298_ReadData(dummy, 30ul);
             
             /* Print the data to the logic analyzer */
-            for (i = 0; i < 30; i = i + 1) {
-                LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
-            }
+            //for (i = 0; i < 30; i = i + 1) {
+                //LogicAnalyzer_OutputChar(dummy[(i * 3) + 1]); // output value of the first channel
+            //}
 		}
 	}
 }

@@ -28,7 +28,7 @@ unsigned char Implant_Initialize(unsigned char* channels) {
 	frameSize = ADS1298_GetFrameSize();
     
     /* Initialize the SPI communication */
-    status &= CC110L_Initialize();
+    //status &= CC110L_Initialize();
     
 	/* Initialize the Logic Analyzer */
 	status &= LogicAnalyzer_Initialize();
